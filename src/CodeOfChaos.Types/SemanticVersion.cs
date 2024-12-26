@@ -21,7 +21,10 @@ namespace CodeOfChaos.Types;
 ///     The Addendum is allowed to contain any information.
 /// </remarks>
 [StructLayout(LayoutKind.Sequential)]
-public readonly struct SemanticVersion(int major, int minor, int patch, string? addendum = null) : IComparable<SemanticVersion>, IEquatable<SemanticVersion> {
+public readonly struct SemanticVersion(int major, int minor, int patch, string? addendum = null) : 
+    IComparable<SemanticVersion>,
+    IEquatable<SemanticVersion>
+{
     [XmlIgnore] public int Major { get; } = major;
     [XmlIgnore] public int Minor { get; } = minor;
     [XmlIgnore] public int Patch { get; } = patch;

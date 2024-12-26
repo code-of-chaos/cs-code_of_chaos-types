@@ -9,31 +9,38 @@ namespace System;
 public class AsyncLazy<T>(Func<CancellationToken, Task<T>> valueFactory) : IAsyncDisposable {
     private readonly SemaphoreSlim _semaphore = new(1, 1);
     private Task<T>? _value;
+    private bool _disposed;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public async Task<T> GetValueAsync(CancellationToken ct = default) {
+    public async ValueTask<T> GetValueAsync(CancellationToken ct = default) {
         ct.ThrowIfCancellationRequested();
         
-        Task<T>? value = _value;
-        if (value != null) return await value.ConfigureAwait(false);
+        
+        if (_value is {} value ) return await value.ConfigureAwait(false);
         
         await _semaphore.WaitAsync(ct).ConfigureAwait(false);
+        
         try {
-            value = _value;
-            if (value == null) {
-                _value = value = valueFactory(ct);
-            }
+            // Check once more within the semaphore lock
+            _value ??= valueFactory(ct);
+        }
+        catch (Exception ex) {
+            _value = Task.FromException<T>(ex);
+            throw;
         }
         finally {
             _semaphore.Release();
         }
 
-        return await value.ConfigureAwait(false);
+        return await _value.ConfigureAwait(false);
     }
 
     public async ValueTask DisposeAsync() {
+        if (_disposed) return;
+        _disposed = true;
+        
         // First do all the regular stuff
         _semaphore.Dispose();
         GC.SuppressFinalize(this);

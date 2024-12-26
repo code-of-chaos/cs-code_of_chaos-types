@@ -13,7 +13,7 @@ namespace Tests.CodeOfChaos.Types;
 [TestSubject(typeof(AsyncLazy<>))]
 public class AsyncLazyTests {
     [Test]
-    public async Task GetValueAsync_ShouldReturnValue_FromTestoryMethod() {
+    public async Task GetValueAsync_ShouldReturnValue_FromFactoryMethod() {
         // Arrange
         int expectedValue = 42;
         var lazy = new AsyncLazy<int>(_ => Task.FromResult(expectedValue));
@@ -53,7 +53,7 @@ public class AsyncLazyTests {
 
         // Act & Assert
         await cts.CancelAsync();
-        await Assert.ThrowsAsync<OperationCanceledException>(() => lazy.GetValueAsync(cts.Token));
+        await Assert.ThrowsAsync<OperationCanceledException>(async () => await lazy.GetValueAsync(cts.Token));
     }
 
     [Test]
@@ -118,7 +118,7 @@ public class AsyncLazyTests {
 
         // Act
         for (int i = 0; i < count; i++) {
-            tasks.Add(lazy.GetValueAsync());// Initiate concurrent access to the value
+            tasks.Add(lazy.GetValueAsync().AsTask());// Initiate concurrent access to the value
         }
 
         int[] results = await Task.WhenAll(tasks);
