@@ -20,8 +20,4 @@
         <PackageReference Include="CodeOfChaos.Extensions" Version="0.22.0" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="TypedValueStore\" />
-    </ItemGroup>
-
 </Project>

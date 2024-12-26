@@ -5,16 +5,16 @@ using CodeOfChaos.Types;
 using JetBrains.Annotations;
 using System.Diagnostics;
 
-namespace Tests.CodeOfChaos.Types.TypedValueStore;
+namespace Tests.CodeOfChaos.Types;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[TestSubject(typeof(global::CodeOfChaos.Types.TypedValueStore))]
+[TestSubject(typeof(TypedValueStore))]
 public class TypedValueStoreTest {
 
     private const int PreFilledStoreAmount = 12;
-    private static global::CodeOfChaos.Types.TypedValueStore GetPrefilledStore() {
-        var store = new global::CodeOfChaos.Types.TypedValueStore();
+    private static TypedValueStore GetPrefilledStore() {
+        var store = new TypedValueStore();
 
         store.TryAdd("alpha", "something");
         store.TryAdd("beta", 123);
@@ -39,7 +39,7 @@ public class TypedValueStoreTest {
     #region TryAdd_ShouldAddNewItem
     private static async Task TryAdd_ShouldAddNewItem<T>(string key, T value) where T : notnull {
         // Arrange
-        global::CodeOfChaos.Types.TypedValueStore store = new();
+        TypedValueStore store = new();
 
         // Act
         bool result = store.TryAdd(key, value);
@@ -79,7 +79,7 @@ public class TypedValueStoreTest {
     #region TryGetValue_ShouldReturnCorrectValue
     private static async Task TryGetValue_ShouldReturnCorrectValue<T>(string key, T value) where T : notnull {
         // Arrange
-        global::CodeOfChaos.Types.TypedValueStore store = GetPrefilledStore();
+        TypedValueStore store = GetPrefilledStore();
 
         // Act
         bool result = store.TryGetValue(key, out T? resultValue);
@@ -128,7 +128,7 @@ public class TypedValueStoreTest {
      [Arguments("mu")]
      public async Task ContainsKey_ShouldReturnTrue(string key) {
          // Arrange
-         global::CodeOfChaos.Types.TypedValueStore store = GetPrefilledStore();
+         TypedValueStore store = GetPrefilledStore();
 
          // Act
          bool result = store.ContainsKey(key);
@@ -141,7 +141,7 @@ public class TypedValueStoreTest {
      [Arguments("NOTHING")]
      public async Task ContainsKey_ShouldReturnFalse(string key) {
          // Arrange
-         global::CodeOfChaos.Types.TypedValueStore store = GetPrefilledStore();
+         TypedValueStore store = GetPrefilledStore();
 
          // Act
          bool result = store.ContainsKey(key);
@@ -166,7 +166,7 @@ public class TypedValueStoreTest {
      [Arguments("mu")]
      public async Task TryRemove_ShouldReturnTrue(string key) {
          // Arrange
-         global::CodeOfChaos.Types.TypedValueStore store = GetPrefilledStore();
+         TypedValueStore store = GetPrefilledStore();
 
          // Act
          bool result = store.TryRemove(key);
@@ -175,10 +175,10 @@ public class TypedValueStoreTest {
          await Assert.That(result).IsTrue().Because("Expected item to be removed successfully.");
      }
 
-     private async Task TryRemoveWithGeneric_ShouldReturnCorrectValue<T>(string key, T expectedValue) where T : notnull {
+     private static async Task TryRemoveWithGeneric_ShouldReturnCorrectValue<T>(string key, T expectedValue) where T : notnull {
          
          // Arrange
-         global::CodeOfChaos.Types.TypedValueStore store = GetPrefilledStore();
+         TypedValueStore store = GetPrefilledStore();
 
          // Act
          bool result = store.TryRemove(key, out T? resultValue);
@@ -213,7 +213,7 @@ public class TypedValueStoreTest {
      [Test]
      public async Task Clear_ShouldClearAllItems() {
          // Arrange
-         global::CodeOfChaos.Types.TypedValueStore store = GetPrefilledStore();
+         TypedValueStore store = GetPrefilledStore();
 
          // Act
          store.Clear();
@@ -225,7 +225,7 @@ public class TypedValueStoreTest {
      [Test]
      public async Task Count_ShouldReturnCorrectCount() {
          // Arrange
-         global::CodeOfChaos.Types.TypedValueStore store = GetPrefilledStore();
+         TypedValueStore store = GetPrefilledStore();
 
          // Act
          int count = store.Count;
@@ -233,100 +233,84 @@ public class TypedValueStoreTest {
          // Assert
          await Assert.That(count).IsEqualTo(PreFilledStoreAmount).Because("Expected store to contain the correct amount of items.");
      }
-//
-//     [Test]
-//     [Arguments("alpha", "else")]
-//     [Arguments("beta", 456)]
-//     [Arguments("gamma", 456f)]
-//     [Arguments("delta", 456d)]
-//     [Arguments("epsilon", 456L)]
-//     [Arguments("zeta", false)]
-//     [Arguments("eta", true)]
-//     [Arguments("theta", 'd')]
-//     [Arguments("iota", "2024-01-01T00:00:00")]
-//     [Arguments("kappa", "2024-01-01T12:00:00+00:00")]
-//     [Arguments("lambda", "03:02:01")]
-//     [Arguments("mu", "d11b1e03-fd98-442e-8235-2c59dc40e517")]
-//     public async Task TryUpdate_ShouldUpdateCorrectly<T>(string key, T value) where T : notnull {
-//
-//         // Arrange
-//         TypedValueStore store = GetPrefilledStore();
-//         bool foundOriginalValue = store.TryGetValue(key, out T? originalValue);
-//
-//         // Act
-//         bool result = store.TryUpdate(key, value);
-//         bool resultReturn = store.TryGetValue(key, out T? resultValue);
-//
-//         // Assert
-//         Assert.True(foundOriginalValue, "Expected original value to be found.");
-//         Assert.True(result, "Expected item to be updated successfully.");
-//         Assert.True(resultReturn, "Expected item to be returned successfully.");
-//         Assert.IsType<T>(resultValue);
-//         Assert.NotEqual(originalValue, resultValue);
-//     }
-//
-//     [Test]
-//     [Arguments<string>("alpha", "else")]
-//     [Arguments<int>("beta", 456)]
-//     [Arguments<float>("gamma", 456f)]
-//     [Arguments<double>("delta", 456d)]
-//     [Arguments<long>("epsilon", 456L)]
-//     [Arguments<bool>("zeta", false)]
-//     [Arguments<bool>("eta", true)]
-//     [Arguments<char>("theta", 'd')]
-//     [Arguments<DateTime>("iota", "2024-01-01T00:00:00")]
-//     [Arguments<DateTimeOffset>("kappa", "2024-01-01T12:00:00+00:00")]
-//     [Arguments<TimeSpan>("lambda", "03:02:01")]
-//     [Arguments<Guid>("mu", "d11b1e03-fd98-442e-8235-2c59dc40e517")]
-//     public async Task Indexer_Set_ShouldUpdateValue<T>(string key, T newValue) where T : notnull {
-//         // Arrange
-//         TypedValueStore store = GetPrefilledStore();
-//
-//         // Act
-//         bool updateResult = store.TryUpdate(key, newValue);
-//         bool result = store.TryGetValue(key, out T? resultValue);
-//
-//         // Assert
-//         Assert.True(updateResult);
-//         Assert.True(result);
-//         Assert.Equal(newValue, resultValue);
-//     }
-//
-//     [Test]
-//     [Arguments<string>("alpha", "updated")]
-//     [Arguments<int>("beta", 999)]
-//     [Arguments<float>("gamma", 9.99f)]
-//     [Arguments<double>("delta", 9.99d)]
-//     [Arguments<long>("epsilon", 999L)]
-//     [Arguments<bool>("zeta", false)]
-//     [Arguments<bool>("eta", true)]
-//     [Arguments<char>("theta", 'z')]
-//     [Arguments<DateTime>("iota", "2025-01-01T00:00:00")]
-//     [Arguments<DateTimeOffset>("kappa", "2025-01-01T12:00:00+00:00")]
-//     [Arguments<TimeSpan>("lambda", "05:06:07")]
-//     [Arguments<Guid>("mu", "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")]
-//     public async Task AddOrUpdate_ShouldUpdateOrAddValue<T>(string key, T newValue) where T : notnull {
-//         // Arrange
-//         TypedValueStore store = GetPrefilledStore();
-//         bool initialContains = store.ContainsKey(key);
-//
-//         // Act
-//         store.AddOrUpdate(key, newValue);
-//         bool resultReturn = store.TryGetValue(key, out T? resultValue);
-//
-//         // Assert
-//         Assert.True(resultReturn, "Expected item to be in the store.");
-//         Assert.IsType<T>(resultValue);
-//         Assert.Equal(newValue, resultValue);
-//         if (initialContains && newValue is not false) {
-//             Assert.NotEqual(newValue, default);
-//         }
-//     }
-//
+     
+     private static async Task TryUpdate_ShouldUpdateCorrectly<T>(string key, T value) where T : notnull {
+         // Arrange
+         TypedValueStore store = GetPrefilledStore();
+         bool foundOriginalValue = store.TryGetValue(key, out T? originalValue);
+         
+         // Act
+         bool result = store.TryUpdate(key, value);
+         bool resultReturn = store.TryGetValue(key, out T? resultValue);
+         
+         // Assert
+         await Assert.That(foundOriginalValue).IsTrue().Because("Expected original value to be found.");
+         await Assert.That(result).IsTrue().Because("Expected item to be updated successfully.");
+         await Assert.That(resultReturn).IsTrue().Because("Expected item to be returned successfully.");
+         await Assert.That(resultValue).IsTypeOf<T>()
+             .And.IsEqualTo(value)
+             .And.IsNotEqualTo(originalValue);
+     }
+     
+
+     [Test]
+     public async Task TryUpdate_ShouldUpdateCorrectly() {
+         Task[] tasks = [
+             TryUpdate_ShouldUpdateCorrectly("alpha", "else"),
+             TryUpdate_ShouldUpdateCorrectly("beta", 456),
+             TryUpdate_ShouldUpdateCorrectly("gamma", 456f),
+             TryUpdate_ShouldUpdateCorrectly("delta", 456d),
+             TryUpdate_ShouldUpdateCorrectly("epsilon", 456L),
+             TryUpdate_ShouldUpdateCorrectly("zeta", false),
+             TryUpdate_ShouldUpdateCorrectly("eta", true),
+             TryUpdate_ShouldUpdateCorrectly("theta", 'd'),
+             TryUpdate_ShouldUpdateCorrectly("iota", DateTime.Parse("2024-01-01T00:00:00")),
+             TryUpdate_ShouldUpdateCorrectly("kappa", DateTimeOffset.Parse("2024-01-01T12:00:00+00:00")),
+             TryUpdate_ShouldUpdateCorrectly("lambda", TimeSpan.Parse("03:02:01")),
+             TryUpdate_ShouldUpdateCorrectly("mu", Guid.Parse("d11b1e03-fd98-442e-8235-2c59dc40e517")),
+         ];
+         
+         await Task.WhenAll(tasks);
+     }
+
+     private async Task AddOrUpdate_ShouldUpdateOrAddValue<T>(string key, T value) where T : notnull {
+         // Arrange
+         TypedValueStore store = GetPrefilledStore();
+
+         // Act
+         store.AddOrUpdate(key, value);
+         bool resultReturn = store.TryGetValue(key, out T? resultValue);
+
+         // Assert
+         await Assert.That(resultReturn).IsTrue().Because("Expected item to be in the store.");
+         await Assert.That(resultValue).IsTypeOf<T>()
+             .And.IsEqualTo(value);
+     }
+
+     [Test]
+     public async Task AddOrUpdate_ShouldUpdateOrAddValue() {
+         Task[] tasks = [
+             AddOrUpdate_ShouldUpdateOrAddValue("alpha", "updated"),
+             AddOrUpdate_ShouldUpdateOrAddValue("beta", 999),
+             AddOrUpdate_ShouldUpdateOrAddValue("gamma", 9.99f),
+             AddOrUpdate_ShouldUpdateOrAddValue("delta", 9.99d),
+             AddOrUpdate_ShouldUpdateOrAddValue("epsilon", 999L),
+             AddOrUpdate_ShouldUpdateOrAddValue("zeta", false),
+             AddOrUpdate_ShouldUpdateOrAddValue("eta", true),
+             AddOrUpdate_ShouldUpdateOrAddValue("theta", 'z'),
+             AddOrUpdate_ShouldUpdateOrAddValue("iota", DateTime.Parse("2025-01-01T00:00:00")),
+             AddOrUpdate_ShouldUpdateOrAddValue("kappa", DateTimeOffset.Parse("2025-01-01T12:00:00+00:00")),
+             AddOrUpdate_ShouldUpdateOrAddValue("lambda", TimeSpan.Parse("05:06:07")),
+             AddOrUpdate_ShouldUpdateOrAddValue("mu", Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")),
+         ];
+         
+         await Task.WhenAll(tasks);
+     }
+     
      [Test]
      public async Task ToImmutable_ShoutCreateImmutableTypedValueStore() {
          // Arrange
-         global::CodeOfChaos.Types.TypedValueStore store = GetPrefilledStore();
+         TypedValueStore store = GetPrefilledStore();
 
          // Act
          ImmutableTypedValueStore<string> immutableStore = store.ToImmutable();
@@ -339,7 +323,7 @@ public class TypedValueStoreTest {
      [Test]
      public async Task ToFrozen_ShoutCreateFrozenTypedValueStore() {
          // Arrange
-         global::CodeOfChaos.Types.TypedValueStore store = GetPrefilledStore();
+         TypedValueStore store = GetPrefilledStore();
 
          // Act
          FrozenTypedValueStore<string> frozenStore = store.ToFrozen();
@@ -352,8 +336,8 @@ public class TypedValueStoreTest {
      [Test]
      public async Task Equals_ShouldReturnTrue() {
          // Arrange
-         global::CodeOfChaos.Types.TypedValueStore store1 = GetPrefilledStore();
-         global::CodeOfChaos.Types.TypedValueStore store2 = GetPrefilledStore();
+         TypedValueStore store1 = GetPrefilledStore();
+         TypedValueStore store2 = GetPrefilledStore();
 
          // Act
          bool result = store1.Equals(store2);
@@ -365,8 +349,8 @@ public class TypedValueStoreTest {
      [Test]
      public async Task Equals_ShouldReturnFalse() {
          // Arrange
-         global::CodeOfChaos.Types.TypedValueStore store1 = GetPrefilledStore();
-         global::CodeOfChaos.Types.TypedValueStore store2 = GetPrefilledStore();
+         TypedValueStore store1 = GetPrefilledStore();
+         TypedValueStore store2 = GetPrefilledStore();
 
          // Act
          bool updateResult = store2.TryUpdate("alpha", "else");
@@ -380,7 +364,7 @@ public class TypedValueStoreTest {
      [Test]
      public async Task Equals_ShouldReturnFalseForDifferentObjectType() {
          // Arrange
-         global::CodeOfChaos.Types.TypedValueStore store = GetPrefilledStore();
+         TypedValueStore store = GetPrefilledStore();
          object notAStore = new();
 
          // Act
@@ -393,7 +377,7 @@ public class TypedValueStoreTest {
      [Test]
      public async Task TryGetValue_ShouldReturnFalseOnNullOrNonExistentKey() {
          // Arrange
-         global::CodeOfChaos.Types.TypedValueStore store = new();
+         TypedValueStore store = new();
 
          // Act
          bool result = store.TryGetValue("nonExistingKey", out object? retrievedValue);
@@ -406,7 +390,7 @@ public class TypedValueStoreTest {
      [Test]
      public async Task Enumerator_ShouldReturnAllStoredItems() {
          // Arrange
-         global::CodeOfChaos.Types.TypedValueStore store = GetPrefilledStore();
+         TypedValueStore store = GetPrefilledStore();
          HashSet<string> expectedKeys = [
              "alpha",
              "beta",
@@ -433,7 +417,7 @@ public class TypedValueStoreTest {
     public async Task PerformanceTest_AddingLargeVolumeOfItems() {
         // Arrange
         const int numberOfItems = 1_000_000;
-        var store = new global::CodeOfChaos.Types.TypedValueStore();
+        var store = new TypedValueStore();
         var stopwatch = new Stopwatch();
 
         // Act
