@@ -17,6 +17,6 @@ public readonly record struct ValueContainer<T>(T Value) : IValueContainer where
         output = default;
         return false;
     }
-    
+
     public Type GetTypeOfValue() => typeof(T);
 }

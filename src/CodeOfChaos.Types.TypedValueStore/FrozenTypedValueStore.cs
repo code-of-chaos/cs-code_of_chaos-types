@@ -74,7 +74,7 @@ public readonly struct FrozenTypedValueStore<TKey>(IDictionary<TKey, IValueConta
     /// <value>
     ///     The total count of elements that exist within the storage of the FrozenTypedValueStore instance.
     /// </value>
-    public int Count => Storage.Count; 
+    public int Count => Storage.Count;
 
     /// <summary>
     ///     Returns an enumerator that iterates through the frozen dictionary of key-value pairs contained in this store.

@@ -11,7 +11,7 @@ namespace CodeOfChaos.Types;
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
 ///     The TypedValueStore class provides a key-value storage system where the key can be of any string.
-///     Is a Helper class of <see cref="TypedValueStore{TKey}"/> already predefined as a string based key storage.
+///     Is a Helper class of <see cref="TypedValueStore{TKey}" /> already predefined as a string based key storage.
 /// </summary>
 public class TypedValueStore : TypedValueStore<string>;
 
@@ -30,8 +30,7 @@ public class TypedValueStore<TKey> :
     IEnumerable<KeyValuePair<TKey, IValueContainer>>,
     IEquatable<ImmutableTypedValueStore<TKey>>,
     IEquatable<FrozenTypedValueStore<TKey>>
-    where TKey : notnull 
-{
+    where TKey : notnull {
     /// <summary>
     ///     A thread-safe collection that stores key-value pairs where the key is of type <typeparamref name="TKey" /> and the
     ///     value

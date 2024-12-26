@@ -5,7 +5,6 @@ using CodeOfChaos.CliArgsParser;
 using CodeOfChaos.CliArgsParser.Library;
 
 namespace Tools.CodeOfChaos.Types;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -22,12 +21,12 @@ public static class Program {
         // We are doing this here because else the launchSettings.json file becomes a humongous issue to deal with.
         //      Sometimes CLI params is not the answer.
         //      Code is the true saviour
-        string projects = string.Join(";", 
+        string projects = string.Join(";",
             "CodeOfChaos.Types",
             "CodeOfChaos.Types.TypedValueStore"
         );
         string oneLineArgs = InputHelper.ToOneLine(args).Replace("%PROJECTS%", projects);
-        
+
         // Finally start executing
         await parser.ParseAsync(oneLineArgs);
     }

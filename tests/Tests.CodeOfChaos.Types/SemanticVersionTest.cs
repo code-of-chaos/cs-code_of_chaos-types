@@ -51,7 +51,7 @@ public class SemanticVersionTest {
     [Arguments("10.20.30-beta_gamma", 10, 20, 30, "beta_gamma")]
     public async Task TestSemanticVersionConstructorWithStringParamAddendum_ValidString(string version, int major, int minor, int patch, string addendum) {
         // Arrange
-        
+
         // Act
         var semanticVersion = new SemanticVersion(version);
 
@@ -89,7 +89,7 @@ public class SemanticVersionTest {
         var semanticVersionWithoutAddendum = new SemanticVersion(versionWithoutAddendum);
 
         // Assert
-        
+
         // Depending upon your requirements, the version with Addendum might be considered lesser, greater or equal
         await Assert.That(semanticVersionWithAddendum).IsGreaterThan(semanticVersionWithoutAddendum);
     }
@@ -126,11 +126,11 @@ public class SemanticVersionTest {
     [Arguments(1, 1, 1, 1, 1, 1)]
     public async Task TestEqualityOperator(int majorA, int minorA, int patchA, int majorB, int minorB, int patchB) {
         // Arrange
-        
+
         // Act
         SemanticVersion semanticVersionA = new(majorA, minorA, patchA);
         SemanticVersion semanticVersionB = new(majorB, minorB, patchB);
-        
+
         // Assert
         await Assert.That(semanticVersionA).IsEqualTo(semanticVersionB);
     }
@@ -142,11 +142,11 @@ public class SemanticVersionTest {
     [Arguments(1, 1, 1, 0, 0, 1)]
     public async Task TestInEqualityOperator(int majorA, int minorA, int patchA, int majorB, int minorB, int patchB) {
         // Arrange
-        
+
         // Act
         SemanticVersion semanticVersionA = new(majorA, minorA, patchA);
         SemanticVersion semanticVersionB = new(majorB, minorB, patchB);
-        
+
         // Assert
         await Assert.That(semanticVersionA).IsNotEqualTo(semanticVersionB);
     }
@@ -158,11 +158,11 @@ public class SemanticVersionTest {
     [Arguments(2, 2, 1, 2, 2, 2)]
     public async Task TestLessThanOperator(int majorA, int minorA, int patchA, int majorB, int minorB, int patchB) {
         // Arrange
-        
+
         // Act
         SemanticVersion semanticVersionA = new(majorA, minorA, patchA);
         SemanticVersion semanticVersionB = new(majorB, minorB, patchB);
-        
+
         // Assert
         await Assert.That(semanticVersionA).IsLessThan(semanticVersionB);
     }
@@ -174,11 +174,11 @@ public class SemanticVersionTest {
     [Arguments(2, 2, 2, 2, 2, 1)]
     public async Task TestGreaterThanOperator(int majorA, int minorA, int patchA, int majorB, int minorB, int patchB) {
         // Arrange
-        
+
         // Act
         SemanticVersion semanticVersionA = new(majorA, minorA, patchA);
         SemanticVersion semanticVersionB = new(majorB, minorB, patchB);
-        
+
         // Assert
         await Assert.That(semanticVersionA).IsGreaterThan(semanticVersionB);
     }
@@ -189,12 +189,12 @@ public class SemanticVersionTest {
     [Arguments(1, 2, 3, 1, 2, 3, 0)]
     public async Task TestCompareTo(int majorA, int minorA, int patchA, int majorB, int minorB, int patchB, int expected) {
         // Arrange
-        
+
         // Act
         SemanticVersion semanticVersionA = new(majorA, minorA, patchA);
         SemanticVersion semanticVersionB = new(majorB, minorB, patchB);
         int comparison = semanticVersionA.CompareTo(semanticVersionB);
-        
+
         // Assert
         await Assert.That(expected).IsEqualTo(comparison);
     }
@@ -205,14 +205,14 @@ public class SemanticVersionTest {
     [Arguments(1, 2, 3, null, 1, 2, 3, "alpha", -1)]
     [Arguments(1, 2, 3, "alpha", 1, 2, 3, "alpha", 0)]
     public async Task TestCompareToWithAddendum(int majorA, int minorA, int patchA, string? addendumA, int majorB, int minorB, int patchB, string? addendumB, int expected) {
-        
+
         // Arrange
-        
+
         // Act
         SemanticVersion semanticVersionA = new(majorA, minorA, patchA, addendumA);
         SemanticVersion semanticVersionB = new(majorB, minorB, patchB, addendumB);
         int comparison = semanticVersionA.CompareTo(semanticVersionB);
-        
+
         // Assert
         await Assert.That(expected).IsEqualTo(comparison);
     }
@@ -262,7 +262,7 @@ public class SemanticVersionTest {
         await Assert.That(version.Minor).IsEqualTo(expectedMinor);
         await Assert.That(version.Patch).IsEqualTo(expectedPatch);
     }
-    
+
     [Test]
     [Arguments("invalid")]
     public async Task TestTryParse_Invalid(string input) {
