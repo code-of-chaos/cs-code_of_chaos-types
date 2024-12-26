@@ -413,44 +413,46 @@ public class TypedValueStoreTest {
          }
      }
 
-    [Test]
-    public async Task PerformanceTest_AddingLargeVolumeOfItems() {
-        // Arrange
-        const int numberOfItems = 1_000_000;
-        var store = new TypedValueStore();
-        var stopwatch = new Stopwatch();
+     [Test]
+     public async Task ParallelTest_AddingLargeVolumeOfItems() {
+         // Arrange
+         const int numberOfItems = 1_000_000;
+         var store = new TypedValueStore();
+         var stopwatch = new Stopwatch();
 
-        // Act
-        stopwatch.Start();
+         // Use a precomputed list of keys to avoid multiple string allocations
+         string[] keys = Enumerable.Range(0, numberOfItems)
+             .Select(i => $"key{i}")
+             .ToArray();
 
-        for (int i = 0; i < numberOfItems; i++) {
-            store.TryAdd($"key{i}", i);
-        }
+         // Act - Add items in parallel
+         stopwatch.Start();
+         Parallel.For(0, numberOfItems, i => store.TryAdd(keys[i], i));
+         stopwatch.Stop();
+         long addingTime = stopwatch.ElapsedMilliseconds;
 
-        stopwatch.Stop();
-        long addingTime = stopwatch.ElapsedMilliseconds;
+         // Assert - Verify count once
+         await Assert.That(store)
+             .IsNotEmpty()
+             .And.HasCount()
+             .EqualTo(numberOfItems);
 
-        // Assert
-        await Assert.That(store).IsNotEmpty()
-            .And.HasCount().EqualTo(numberOfItems);
-        Console.WriteLine($"Time to add {numberOfItems} items: {addingTime} ms");
+         Console.WriteLine($"Time to add {numberOfItems} items: {addingTime} ms");
 
-        stopwatch.Reset();
+         var retrievalStopwatch = new Stopwatch();
 
-        // Act
-        stopwatch.Start();
+         // Act - Retrieve items in parallel
+         retrievalStopwatch.Start();
+         Parallel.For(0, numberOfItems, (i, ct) => {
+             // Yes usint TUnit would have been fine here as well, but this runs a lot faster. 1s vs 6s with TUnit 
+             bool exists = store.TryGetValue(keys[i], out int value);
+             if (!exists || value != i) throw new Exception($"Key {keys[i]} had an unexpected value: {value}. Expected: {i}.");
+         });
+         
+         retrievalStopwatch.Stop();
+         long retrievalTime = retrievalStopwatch.ElapsedMilliseconds;
 
-        for (int i = 0; i < numberOfItems; i++) {
-            bool exists = store.TryGetValue($"key{i}", out int value);
-            
-            await Assert.That(exists).IsTrue();
-            await Assert.That(value).IsEqualTo(i);
-        }
-
-        stopwatch.Stop();
-        long retrievalTime = stopwatch.ElapsedMilliseconds;
-
-        // Assert
-        Console.WriteLine($"Time to retrieve {numberOfItems} items: {retrievalTime} ms");
-    }
+         // Assert
+         Console.WriteLine($"Time to retrieve {numberOfItems} items: {retrievalTime} ms");
+     }
 }
