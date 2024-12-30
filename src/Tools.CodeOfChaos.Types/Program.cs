@@ -23,7 +23,8 @@ public static class Program {
         //      Code is the true saviour
         string projects = string.Join(";",
             "CodeOfChaos.Types",
-            "CodeOfChaos.Types.TypedValueStore"
+            "CodeOfChaos.Types.TypedValueStore",
+            "CodeOfChaos.Types.DataSeeder"
         );
         string oneLineArgs = InputHelper.ToOneLine(args).Replace("%PROJECTS%", projects);
 
