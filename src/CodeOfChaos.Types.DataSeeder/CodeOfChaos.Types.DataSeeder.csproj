@@ -8,7 +8,7 @@
 
         <!-- Main package name -->
         <PackageId>CodeOfChaos.Types.DataSeeder</PackageId>
-        <Version>0.3.0</Version>
+        <Version>0.4.0</Version>
         <Authors>Anna Sas</Authors>
         <Description>A small library housing DataSeeder typings</Description>
         <PackageProjectUrl>https://github.com/code-of-chaos/cs-code_of_chaos-types</PackageProjectUrl>
@@ -23,19 +23,19 @@
     </PropertyGroup>
 
     <ItemGroup Label="InternalsVisibleTo">
-        <InternalsVisibleTo Include="Tests.CodeOfChaos.Types.DataSeeder"/>
-        <InternalsVisibleTo Include="DynamicProxyGenAssembly2"/>
+        <InternalsVisibleTo Include="Tests.CodeOfChaos.Types.DataSeeder" />
+        <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="../../LICENSE" Pack="true" PackagePath="" Visible="false"/>
-        <None Include="../../README.md" Pack="true" PackagePath="" Visible="false"/>
-        <None Include="../../assets/icon.png" Pack="true" PackagePath="" Visible="false"/>
+        <None Include="../../LICENSE" Pack="true" PackagePath="" Visible="false" />
+        <None Include="../../README.md" Pack="true" PackagePath="" Visible="false" />
+        <None Include="../../assets/icon.png" Pack="true" PackagePath="" Visible="false" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.0" />
     </ItemGroup>
 
 </Project>
