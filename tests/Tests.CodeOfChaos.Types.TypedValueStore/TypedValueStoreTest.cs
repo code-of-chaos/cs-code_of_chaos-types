@@ -12,7 +12,7 @@ namespace Tests.CodeOfChaos.Types;
 [TestSubject(typeof(TypedValueStore))]
 public class TypedValueStoreTest {
     private const int PreFilledStoreAmount = 12;
-    
+
     private static TypedValueStore GetPrefilledStore() {
         var store = new TypedValueStore();
 
@@ -378,7 +378,7 @@ public class TypedValueStoreTest {
         // Assert
         Console.WriteLine($"Time to retrieve {numberOfItems} items: {retrievalTime} ms");
     }
-    
+
     #region TryAdd_ShouldAddNewItem
     private static async Task TryAdd_ShouldAddNewItem<T>(string key, T value) where T : notnull {
         // Arrange

@@ -10,7 +10,7 @@ public class AsyncLazy<T>(Func<CancellationToken, Task<T>> valueFactory) : IAsyn
     private readonly SemaphoreSlim _semaphore = new(1, 1);
     private bool _disposed;
     private Task<T>? _value;
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
@@ -38,7 +38,7 @@ public class AsyncLazy<T>(Func<CancellationToken, Task<T>> valueFactory) : IAsyn
 
         _value = null;
     }
-    
+
     public async ValueTask<T> GetValueAsync(CancellationToken ct = default) {
         ct.ThrowIfCancellationRequested();
 

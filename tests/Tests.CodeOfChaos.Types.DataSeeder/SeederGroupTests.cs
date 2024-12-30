@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Tests.CodeOfChaos.Types.DataSeeder;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -25,7 +24,7 @@ public class SeederGroupTests {
             .IsEmpty()
             .And.HasCount().EqualToZero();
     }
-    
+
     [Test]
     public async Task Constructor_ShouldInitializeSeederGroupFromArray() {
         // Arrange
@@ -44,7 +43,7 @@ public class SeederGroupTests {
             .And.Contains(mockSeeder1)
             .And.Contains(mockSeeder2);
     }
-    
+
     [Test]
     public async Task AddSeeder_ShouldAddSeederInstance() {
         // Arrange
@@ -111,7 +110,7 @@ public class SeederGroupTests {
             .And.HasCount().EqualTo(1)
             .And.Contains(mockSeeder);
     }
-    
+
     [Test]
     public async Task AddSeeder_WithFactory_ShouldAddFactoryCreatedSeeder_WithAction() {
         // Arrange

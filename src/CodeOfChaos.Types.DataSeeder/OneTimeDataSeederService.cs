@@ -1,7 +1,6 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Reflection;
@@ -57,8 +56,6 @@ public abstract class OneTimeDataSeederService(IServiceProvider serviceProvider,
         logger.LogInformation("Stopping DataSeederService...");
         return Task.CompletedTask;
     }
-
-    protected virtual Task CollectAsync(CancellationToken ct = default) => Task.CompletedTask;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Seeder manipulation Methods
@@ -137,6 +134,8 @@ public abstract class OneTimeDataSeederService(IServiceProvider serviceProvider,
         AddSeederGroup(group);
         _collectedRemainders = true;
     }
+
+    protected virtual Task CollectAsync(CancellationToken ct = default) => Task.CompletedTask;
 
     private static Type[] CollectTypes(Assembly assembly)
         => assembly.GetTypes()

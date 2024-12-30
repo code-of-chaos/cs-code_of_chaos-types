@@ -4,7 +4,6 @@
 using Microsoft.Extensions.Logging;
 
 namespace CodeOfChaos.Types;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -14,6 +13,7 @@ public abstract class Seeder : ISeeder {
             logger.LogInformation("Skipping seeding");
             return;
         }
+
         ct.ThrowIfCancellationRequested();
         await SeedAsync(ct);
     }

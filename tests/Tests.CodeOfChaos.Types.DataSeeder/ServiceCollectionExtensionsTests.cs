@@ -7,7 +7,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Tests.CodeOfChaos.Types.DataSeeder;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -26,7 +25,7 @@ public class ServiceCollectionExtensionsTests {
             .IsNotNull()
             .And.IsTypeOf<TestSeederService>();
     }
-    
+
     [Test]
     public async Task AddOneTimeDataSeeder_ShouldRegisterUsingFactory() {
         // Arrange
@@ -41,7 +40,7 @@ public class ServiceCollectionExtensionsTests {
             .IsNotNull()
             .And.IsTypeOf<TestSeederService>();
     }
-    
+
     // Test Seeder Service Implementation for Testing DI
     public class TestSeederService(IServiceProvider sp) : OneTimeDataSeederService(sp, sp.GetRequiredService<ILogger<TestSeederService>>());
 }
