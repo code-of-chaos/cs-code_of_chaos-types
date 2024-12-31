@@ -19,14 +19,14 @@ public static class ServiceCollectionExtensions {
         where TDataSeeder : class, IDataSeederService, IHostedService
         => services.AddHostedService(implementationFactory);
 
-    public static IServiceCollection AddOneTimeDataSeeder<TDataSeeder>(this IServiceCollection services, Action<TDataSeeder> configure)
+    public static IServiceCollection AddOneTimeDataSeeder<TDataSeeder>(this IServiceCollection services, Action<TDataSeeder> configureSeeder)
         where TDataSeeder : class, IDataSeederService, IHostedService {
         
         services.TryAddEnumerable(
             ServiceDescriptor.Singleton<IHostedService, TDataSeeder>(provider
                 => {
                     var seeder = ActivatorUtilities.CreateInstance<TDataSeeder>(provider);
-                    configure(seeder);
+                    configureSeeder(seeder);
                     return seeder;
                 }
             )
@@ -34,6 +34,6 @@ public static class ServiceCollectionExtensions {
         return services;
     }
 
-    public static IServiceCollection AddOneTimeDataSeeder(this IServiceCollection services, Action<OneTimeDataSeederService> configure)
-        => AddOneTimeDataSeeder<OneTimeDataSeederService>(services, configure);
+    public static IServiceCollection AddOneTimeDataSeeder(this IServiceCollection services, Action<OneTimeDataSeederService> configureSeeder)
+        => AddOneTimeDataSeeder<OneTimeDataSeederService>(services, configureSeeder);
 }
