@@ -25,16 +25,16 @@ public class SeederGroupTests {
     public async Task AddSeeder_ShouldAddSeederType() {
         // Arrange
         var seederGroup = new SeederGroup();
-        
+
         // Act
         seederGroup.AddSeeder<TestSeeder>();
-        
+
         // Assert
         await Assert.That(seederGroup.SeederTypes)
             .HasCount().EqualTo(1)
             .And.Contains(typeof(TestSeeder));
     }
-    
+
 
     public class TestSeeder : Seeder {
         public override Task SeedAsync(CancellationToken ct = default) => Task.CompletedTask;

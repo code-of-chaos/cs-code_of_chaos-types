@@ -23,26 +23,26 @@
     </PropertyGroup>
 
     <ItemGroup Label="InternalsVisibleTo">
-        <InternalsVisibleTo Include="Tests.CodeOfChaos.Types" />
+        <InternalsVisibleTo Include="Tests.CodeOfChaos.Types"/>
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="../../LICENSE" Pack="true" PackagePath="" Visible="false" />
-        <None Include="../../README.md" Pack="true" PackagePath="" Visible="false" />
-        <None Include="../../assets/icon.png" Pack="true" PackagePath="" Visible="false" />
+        <None Include="../../LICENSE" Pack="true" PackagePath="" Visible="false"/>
+        <None Include="../../README.md" Pack="true" PackagePath="" Visible="false"/>
+        <None Include="../../assets/icon.png" Pack="true" PackagePath="" Visible="false"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="AterraEngine.Unions" Version="2.5.0" />
+        <PackageReference Include="AterraEngine.Unions" Version="2.5.0"/>
         <PackageReference Include="AterraEngine.Unions.Generators" Version="2.5.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="CodeOfChaos.Extensions" Version="0.27.0" />
+        <PackageReference Include="CodeOfChaos.Extensions" Version="0.27.0"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\CodeOfChaos.Types.TypedValueStore\CodeOfChaos.Types.TypedValueStore.csproj" />
+        <ProjectReference Include="..\CodeOfChaos.Types.TypedValueStore\CodeOfChaos.Types.TypedValueStore.csproj"/>
     </ItemGroup>
 
 </Project>

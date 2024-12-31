@@ -46,10 +46,10 @@ public class ServiceCollectionExtensionsTests {
     public async Task AddOneTimeDataSeeder_ShouldRegisterUsingAction() {
         // Arrange
         IServiceCollection services = new ServiceCollection()
-            .AddLogging()
-            .AddSingleton<TestSeeder>()
-        ;
-        
+                .AddLogging()
+                .AddSingleton<TestSeeder>()
+            ;
+
         // Act
         services.AddOneTimeDataSeeder<TestSeederService>(seeder => seeder.AddSeeder<TestSeeder>());
         var hostedService = services.BuildServiceProvider().GetRequiredService<IHostedService>();
@@ -57,7 +57,7 @@ public class ServiceCollectionExtensionsTests {
         bool? hasTestSeeder = seeder?.OverloadSeeders.Any(s => s.SeederTypes.Any(s2 => s2 == typeof(TestSeeder)));
         bool? hasTestSeederType = seeder?.OverloadSeederTypes.Contains(typeof(TestSeeder));
         bool? collectedRemainders = seeder?.OverloadCollectedRemainders;
-        
+
         // Assert
         await Assert.That(hostedService)
             .IsNotNull()

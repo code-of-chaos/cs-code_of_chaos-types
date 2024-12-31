@@ -12,28 +12,28 @@ namespace CodeOfChaos.Types;
 // ---------------------------------------------------------------------------------------------------------------------
 public class OneTimeDataSeederService(IServiceProvider serviceProvider, ILogger<OneTimeDataSeederService> logger) : IDataSeederService {
     /// <summary>
-    /// Represents a thread-safe queue of SeederGroup objects used within the OneTimeDataSeederService
-    /// to maintain and manage seeding operations.
+    ///     Represents a thread-safe queue of SeederGroup objects used within the OneTimeDataSeederService
+    ///     to maintain and manage seeding operations.
     /// </summary>
     /// <remarks>
-    /// The <c>Seeders</c> field serves as the central storage for SeederGroups, allowing them to be
-    /// enqueued and dequeued in a controlled manner during the seeding process. This ensures
-    /// proper execution order and thread safety for concurrent operations.
+    ///     The <c>Seeders</c> field serves as the central storage for SeederGroups, allowing them to be
+    ///     enqueued and dequeued in a controlled manner during the seeding process. This ensures
+    ///     proper execution order and thread safety for concurrent operations.
     /// </remarks>
     protected readonly ConcurrentQueue<SeederGroup> Seeders = [];
-    
+
     /// <summary>
-    /// Represents a thread-safe collection of seeder types used by the OneTimeDataSeederService to track
-    /// registered data seeders. This collection ensures that each type of seeder is only added once
-    /// and prevents duplicates during the seeding process. It plays a critical role in managing
-    /// and validating the lifecycle of seeders added to the service.
+    ///     Represents a thread-safe collection of seeder types used by the OneTimeDataSeederService to track
+    ///     registered data seeders. This collection ensures that each type of seeder is only added once
+    ///     and prevents duplicates during the seeding process. It plays a critical role in managing
+    ///     and validating the lifecycle of seeders added to the service.
     /// </summary>
     protected readonly ConcurrentBag<Type> SeederTypes = [];
-    
+
     /// <summary>
-    /// Indicates whether the remainder seeders have been successfully collected.
-    /// If set to <c>true</c>, it indicates that no additional remainder seeders can
-    /// be added to the service, and attempting to do so will throw an exception.
+    ///     Indicates whether the remainder seeders have been successfully collected.
+    ///     If set to <c>true</c>, it indicates that no additional remainder seeders can
+    ///     be added to the service, and attempting to do so will throw an exception.
     /// </summary>
     protected bool CollectedRemainders;// If set to true, the remainder seeders have been collected and thus should throw an exception if any are added
 
@@ -41,15 +41,15 @@ public class OneTimeDataSeederService(IServiceProvider serviceProvider, ILogger<
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     /// <summary>
-    /// Starts the data seeding process by executing all configured seeder groups in sequence.
-    /// Validates seeders, collects data, and manages the lifecycle of each group using scoped services.
+    ///     Starts the data seeding process by executing all configured seeder groups in sequence.
+    ///     Validates seeders, collects data, and manages the lifecycle of each group using scoped services.
     /// </summary>
     /// <param name="ct">A CancellationToken used to observe cancellation requests.</param>
     /// <returns>A Task representing the asynchronous operation.</returns>
     public async Task StartAsync(CancellationToken ct = default) {
         logger.LogInformation("DataSeederService starting...");
-        
-        await CollectAsync(ct); // If user choose the old format of adding seeders, this will be what ads the seeders to the queue
+
+        await CollectAsync(ct);// If user choose the old format of adding seeders, this will be what ads the seeders to the queue
         ct.ThrowIfCancellationRequested();// Don't throw during collection, but throw afterward
 
         // Validation has to succeed before we continue
@@ -70,16 +70,16 @@ public class OneTimeDataSeederService(IServiceProvider serviceProvider, ILogger<
             }
 
             // Each group should have their own scope
-            await using AsyncServiceScope scope =  serviceProvider.CreateAsyncScope();
+            await using AsyncServiceScope scope = serviceProvider.CreateAsyncScope();
             IServiceProvider scopeProvider = scope.ServiceProvider;
             List<ISeeder> seeders = [];
-            
+
             while (seederGroup.SeederTypes.TryDequeue(out Type? seederType)) {
                 var seeder = (ISeeder)scopeProvider.GetRequiredService(seederType);
                 seeders.Add(seeder);
-                
+
             }
-            
+
             logger.LogDebug("ExecutionStep {step} : {count} Seeder(s) found, executing...", i++, seeders.Count);
             await Task.WhenAll(seeders.Select(seeder => seeder.StartAsync(logger, ct)));
         }
@@ -92,7 +92,7 @@ public class OneTimeDataSeederService(IServiceProvider serviceProvider, ILogger<
     }
 
     /// <summary>
-    /// Asynchronously stops the OneTimeDataSeederService, handling any necessary cleanup or finalization logic.
+    ///     Asynchronously stops the OneTimeDataSeederService, handling any necessary cleanup or finalization logic.
     /// </summary>
     /// <param name="ct">The cancellation token to observe while awaiting the task to complete.</param>
     /// <returns>A task that completes when the service has been stopped.</returns>
@@ -100,14 +100,6 @@ public class OneTimeDataSeederService(IServiceProvider serviceProvider, ILogger<
         logger.LogInformation("Stopping DataSeederService...");
         return Task.CompletedTask;
     }
-
-    /// <summary>
-    /// Collects seeders asynchronously to prepare for execution based on the seeding logic.
-    /// This method is intended to be overridden for custom collection logic.
-    /// </summary>
-    /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    protected virtual Task CollectAsync(CancellationToken ct = default) => Task.CompletedTask;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Seeder manipulation Methods
@@ -122,7 +114,7 @@ public class OneTimeDataSeederService(IServiceProvider serviceProvider, ILogger<
         group(seeders);
         return AddSeederGroup(seeders);
     }
-    
+
     /// <inheritdoc />
     public IDataSeederService AddSeederGroup(SeederGroup group) {
         ThrowIfRemainderSeeders();
@@ -134,7 +126,7 @@ public class OneTimeDataSeederService(IServiceProvider serviceProvider, ILogger<
 
         return this;
     }
-    
+
     /// <inheritdoc />
     public void AddRemainderSeeders(Assembly assembly) {
         Type[] types = CollectTypes(assembly);
@@ -159,7 +151,7 @@ public class OneTimeDataSeederService(IServiceProvider serviceProvider, ILogger<
 
         CollectedRemainders = true;
     }
-    
+
     /// <inheritdoc />
     public void AddRemainderSeedersAsOneGroup(Assembly assembly) {
         Type[] types = CollectTypes(assembly);
@@ -188,6 +180,14 @@ public class OneTimeDataSeederService(IServiceProvider serviceProvider, ILogger<
         AddSeederGroup(group);
         CollectedRemainders = true;
     }
+
+    /// <summary>
+    ///     Collects seeders asynchronously to prepare for execution based on the seeding logic.
+    ///     This method is intended to be overridden for custom collection logic.
+    /// </summary>
+    /// <param name="ct">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>A <see cref="Task" /> representing the asynchronous operation.</returns>
+    protected virtual Task CollectAsync(CancellationToken ct = default) => Task.CompletedTask;
 
     private static Type[] CollectTypes(Assembly assembly)
         => assembly.GetTypes()
