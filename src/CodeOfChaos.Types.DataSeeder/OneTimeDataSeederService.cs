@@ -70,7 +70,7 @@ public class OneTimeDataSeederService(IServiceProvider serviceProvider, ILogger<
             }
 
             // Each group should have their own scope
-            using IServiceScope scope = serviceProvider.CreateScope();
+            await using AsyncServiceScope scope =  serviceProvider.CreateAsyncScope();
             IServiceProvider scopeProvider = scope.ServiceProvider;
             List<ISeeder> seeders = [];
             
