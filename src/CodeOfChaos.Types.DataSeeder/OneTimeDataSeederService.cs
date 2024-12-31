@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Reflection;
@@ -9,19 +10,46 @@ namespace CodeOfChaos.Types;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public abstract class OneTimeDataSeederService(IServiceProvider serviceProvider, ILogger<OneTimeDataSeederService> logger) : IDataSeederService {
-    private readonly ConcurrentQueue<SeederGroup> _seeders = [];
-    private readonly ConcurrentBag<Type> _seederTypes = [];
-    private bool _collectedRemainders;// If set to true, the remainder seeders have been collected and thus should throw an exception if any are added
+public class OneTimeDataSeederService(IServiceProvider serviceProvider, ILogger<OneTimeDataSeederService> logger) : IDataSeederService {
+    /// <summary>
+    /// Represents a thread-safe queue of SeederGroup objects used within the OneTimeDataSeederService
+    /// to maintain and manage seeding operations.
+    /// </summary>
+    /// <remarks>
+    /// The <c>Seeders</c> field serves as the central storage for SeederGroups, allowing them to be
+    /// enqueued and dequeued in a controlled manner during the seeding process. This ensures
+    /// proper execution order and thread safety for concurrent operations.
+    /// </remarks>
+    protected readonly ConcurrentQueue<SeederGroup> Seeders = [];
+    
+    /// <summary>
+    /// Represents a thread-safe collection of seeder types used by the OneTimeDataSeederService to track
+    /// registered data seeders. This collection ensures that each type of seeder is only added once
+    /// and prevents duplicates during the seeding process. It plays a critical role in managing
+    /// and validating the lifecycle of seeders added to the service.
+    /// </summary>
+    protected readonly ConcurrentBag<Type> SeederTypes = [];
+    
+    /// <summary>
+    /// Indicates whether the remainder seeders have been successfully collected.
+    /// If set to <c>true</c>, it indicates that no additional remainder seeders can
+    /// be added to the service, and attempting to do so will throw an exception.
+    /// </summary>
+    protected bool CollectedRemainders;// If set to true, the remainder seeders have been collected and thus should throw an exception if any are added
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Starts the data seeding process by executing all configured seeder groups in sequence.
+    /// Validates seeders, collects data, and manages the lifecycle of each group using scoped services.
+    /// </summary>
+    /// <param name="ct">A CancellationToken used to observe cancellation requests.</param>
+    /// <returns>A Task representing the asynchronous operation.</returns>
     public async Task StartAsync(CancellationToken ct = default) {
         logger.LogInformation("DataSeederService starting...");
-
-        // User has to collect the seeders
-        await CollectAsync(ct);
+        
+        await CollectAsync(ct); // If user choose the old format of adding seeders, this will be what ads the seeders to the queue
         ct.ThrowIfCancellationRequested();// Don't throw during collection, but throw afterward
 
         // Validation has to succeed before we continue
@@ -30,7 +58,7 @@ public abstract class OneTimeDataSeederService(IServiceProvider serviceProvider,
         if (!ValidateSeeders()) return;
 
         int i = 0;
-        foreach (SeederGroup seederGroup in _seeders) {
+        while (Seeders.TryDequeue(out SeederGroup seederGroup)) {
             if (ct.IsCancellationRequested) {
                 logger.LogWarning("Seeding process canceled during execution.");
                 break;
@@ -41,54 +69,79 @@ public abstract class OneTimeDataSeederService(IServiceProvider serviceProvider,
                 continue;
             }
 
-            logger.LogDebug("ExecutionStep {step} : {count} Seeder(s) found, executing...", i++, seederGroup.Count);
-            await Task.WhenAll(seederGroup.Select(seeder => seeder.StartAsync(logger, ct)));
+            // Each group should have their own scope
+            using IServiceScope scope = serviceProvider.CreateScope();
+            IServiceProvider scopeProvider = scope.ServiceProvider;
+            List<ISeeder> seeders = [];
+            
+            while (seederGroup.SeederTypes.TryDequeue(out Type? seederType)) {
+                var seeder = (ISeeder)scopeProvider.GetRequiredService(seederType);
+                seeders.Add(seeder);
+                
+            }
+            
+            logger.LogDebug("ExecutionStep {step} : {count} Seeder(s) found, executing...", i++, seeders.Count);
+            await Task.WhenAll(seeders.Select(seeder => seeder.StartAsync(logger, ct)));
         }
 
         logger.LogInformation("All seeders completed in {i} steps", i);
         // Cleanup
-        _seeders.Clear();
-        _seederTypes.Clear();
-        _collectedRemainders = false;
+        Seeders.Clear();
+        SeederTypes.Clear();
+        CollectedRemainders = false;
     }
 
+    /// <summary>
+    /// Asynchronously stops the OneTimeDataSeederService, handling any necessary cleanup or finalization logic.
+    /// </summary>
+    /// <param name="ct">The cancellation token to observe while awaiting the task to complete.</param>
+    /// <returns>A task that completes when the service has been stopped.</returns>
     public Task StopAsync(CancellationToken ct = default) {
         logger.LogInformation("Stopping DataSeederService...");
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Collects seeders asynchronously to prepare for execution based on the seeding logic.
+    /// This method is intended to be overridden for custom collection logic.
+    /// </summary>
+    /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    protected virtual Task CollectAsync(CancellationToken ct = default) => Task.CompletedTask;
+
     // -----------------------------------------------------------------------------------------------------------------
     // Seeder manipulation Methods
     // -----------------------------------------------------------------------------------------------------------------
+    /// <inheritdoc />
     public IDataSeederService AddSeeder<TSeeder>() where TSeeder : ISeeder
         => AddSeederGroup(group => group.AddSeeder<TSeeder>());
 
-    public IDataSeederService AddSeederGroup(params ISeeder[] seeders)
-        => AddSeederGroup(new SeederGroup(seeders, serviceProvider));
-
+    /// <inheritdoc />
     public IDataSeederService AddSeederGroup(Action<SeederGroup> group) {
-        var seeders = new SeederGroup(serviceProvider);
+        var seeders = new SeederGroup();
         group(seeders);
         return AddSeederGroup(seeders);
     }
-
+    
+    /// <inheritdoc />
     public IDataSeederService AddSeederGroup(SeederGroup group) {
         ThrowIfRemainderSeeders();
 
-        _seeders.Enqueue(group);
-        foreach (ISeeder seeder in group) {
-            _seederTypes.Add(seeder.GetType());
+        Seeders.Enqueue(group);
+        foreach (Type seeder in group.SeederTypes.ToArray()) {
+            SeederTypes.Add(seeder);
         }
 
         return this;
     }
-
+    
+    /// <inheritdoc />
     public void AddRemainderSeeders(Assembly assembly) {
         Type[] types = CollectTypes(assembly);
         var errors = new List<Exception>();
 
         foreach (Type type in types) {
-            if (_seederTypes.Contains(type)) {
+            if (SeederTypes.Contains(type)) {
                 logger.LogDebug("Skipping {t} as it was already assigned", type);
                 continue;
             }
@@ -104,23 +157,24 @@ public abstract class OneTimeDataSeederService(IServiceProvider serviceProvider,
 
         if (errors.Count != 0) throw new AggregateException(errors);
 
-        _collectedRemainders = true;
+        CollectedRemainders = true;
     }
-
+    
+    /// <inheritdoc />
     public void AddRemainderSeedersAsOneGroup(Assembly assembly) {
         Type[] types = CollectTypes(assembly);
-        var group = new SeederGroup(serviceProvider);
+        var group = new SeederGroup();
         var errors = new List<Exception>();
 
         foreach (Type type in types) {
-            if (_seederTypes.Contains(type)) {
+            if (SeederTypes.Contains(type)) {
                 logger.LogDebug("Skipping {t} as it was already assigned", type);
                 continue;
             }
 
             try {
                 group.AddSeeder(type);
-                _seederTypes.Add(type);
+                SeederTypes.Add(type);
             }
             catch (Exception ex) {
                 logger.LogError(ex, "Failed to instantiate {t}. Skipping...", type);
@@ -132,10 +186,8 @@ public abstract class OneTimeDataSeederService(IServiceProvider serviceProvider,
 
         // Collect as one Concurrent step
         AddSeederGroup(group);
-        _collectedRemainders = true;
+        CollectedRemainders = true;
     }
-
-    protected virtual Task CollectAsync(CancellationToken ct = default) => Task.CompletedTask;
 
     private static Type[] CollectTypes(Assembly assembly)
         => assembly.GetTypes()
@@ -146,14 +198,14 @@ public abstract class OneTimeDataSeederService(IServiceProvider serviceProvider,
             .ToArray();
 
     private void ThrowIfRemainderSeeders() {
-        if (!_collectedRemainders) return;
+        if (!CollectedRemainders) return;
 
         logger.LogError("Remainder seeders have already been collected");
         throw new InvalidOperationException("Remainder seeders have already been collected");
     }
 
     protected virtual bool ValidateSeeders() {
-        if (!_seeders.IsEmpty) return true;
+        if (!Seeders.IsEmpty) return true;
 
         logger.LogWarning("No seeders were added prior to execution.");
         return false;
