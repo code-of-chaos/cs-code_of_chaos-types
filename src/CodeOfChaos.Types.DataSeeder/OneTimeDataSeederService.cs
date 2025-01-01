@@ -75,6 +75,7 @@ public class OneTimeDataSeederService(IServiceProvider serviceProvider, ILogger<
             while (seederGroup.SeederTypes.TryDequeue(out Type? seederType)) {
                 AsyncServiceScope scope = serviceProvider.CreateAsyncScope();
                 IServiceProvider scopeProvider = scope.ServiceProvider;
+                
                 // Because of checks by the SeederGroup struct we know that the seeder inherits from ISeeder and thus is not null
                 var seeder = (ISeeder) scopeProvider.GetRequiredService(seederType);
                 Task seederTask = seeder.StartAsync(scopeProvider, ct); 
