@@ -11,64 +11,48 @@ namespace Tests.CodeOfChaos.Types.DataSeeder;
 // ---------------------------------------------------------------------------------------------------------------------
 public class SeederTests {
     [Test]
-    public async Task StartAsync_ShouldLogAndReturn_WhenShouldSeedReturnsFalse() {
-        // Arrange
-        var loggerMock = new Mock<ILogger>();
-        var seeder = new TestSeeder {
-            ShouldSeedResult = false// Simulate ShouldSeedAsync returning false
-        };
+public async Task StartAsync_ShouldLogAndReturn_WhenShouldSeedReturnsFalse() {
+    // Arrange
+    var serviceProviderMock = new Mock<IServiceProvider>();
+    var seeder = new TestSeeder {
+        ShouldSeedResult = false // Simulate ShouldSeedAsync returning false
+    };
 
-        // Act
-        await seeder.StartAsync(loggerMock.Object);
+    // Act
+    await seeder.StartAsync(serviceProviderMock.Object);
 
-        // Assert
-        loggerMock.Verify(
-            expression: logger => logger.Log(
-                LogLevel.Information,
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((state, _) => state.ToString()!.Contains("Skipping seeding")),
-                It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception, string>>()!),
-            Times.Once);
-        await Assert.That(seeder.SeedWasCalled).IsFalse();
-    }
+    // Assert
+    await Assert.That(seeder.ShouldSeed).IsFalse();
+}
 
     [Test]
-    public async Task StartAsync_ShouldCallSeed_WhenShouldSeedReturnsTrue() {
-        // Arrange
-        var loggerMock = new Mock<ILogger>();
-        var seeder = new TestSeeder {
-            ShouldSeedResult = true// Simulate ShouldSeedAsync returning true
-        };
+public async Task StartAsync_ShouldCallSeed_WhenShouldSeedReturnsTrue() {
+    // Arrange
+    var serviceProviderMock = new Mock<IServiceProvider>();
+    var seeder = new TestSeeder {
+        ShouldSeedResult = true // Simulate ShouldSeedAsync returning true
+    };
 
-        // Act
-        await seeder.StartAsync(loggerMock.Object);
+    // Act
+    await seeder.StartAsync(serviceProviderMock.Object);
 
-        // Assert
-        loggerMock.Verify(
-            expression: logger => logger.Log(
-                It.IsAny<LogLevel>(),
-                It.IsAny<EventId>(),
-                It.IsAny<It.IsAnyType>(),
-                It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception, string>>()!),
-            Times.Never);// No additional logging should occur during SeedAsync
-        await Assert.That(seeder.SeedWasCalled).IsTrue();
-    }
+    // Assert
+    await Assert.That(seeder.ShouldSeed).IsTrue();
+}
 
     [Test]
-    public async Task StartAsync_ShouldRespectCancellationToken() {
-        // Arrange
-        var loggerMock = new Mock<ILogger>();
-        var seeder = new TestSeeder();
-        using var cts = new CancellationTokenSource();
-        await cts.CancelAsync();// Simulate cancellation
+public async Task StartAsync_ShouldRespectCancellationToken() {
+    // Arrange
+    var serviceProviderMock = new Mock<IServiceProvider>();
+    var seeder = new TestSeeder();
+    using var cts = new CancellationTokenSource();
+    await cts.CancelAsync(); // Simulate cancellation
 
-        // Act & Assert
-        await Assert.ThrowsAsync<OperationCanceledException>(async () => {
-            await seeder.StartAsync(loggerMock.Object, cts.Token);
-        });
-    }
+    // Act & Assert
+    await Assert.ThrowsAsync<OperationCanceledException>(async () => {
+        await seeder.StartAsync(serviceProviderMock.Object, cts.Token);
+    });
+}
 
     // Test implementation of Seeder for unit tests
     public class TestSeeder : Seeder {

@@ -69,19 +69,27 @@ public class OneTimeDataSeederService(IServiceProvider serviceProvider, ILogger<
                 continue;
             }
 
-            // Each group should have their own scope
-            await using AsyncServiceScope scope = serviceProvider.CreateAsyncScope();
-            IServiceProvider scopeProvider = scope.ServiceProvider;
-            List<ISeeder> seeders = [];
+            // Each SEEDER should have their own scope
+            List<(Task, AsyncServiceScope)> seederTasks = [];
 
             while (seederGroup.SeederTypes.TryDequeue(out Type? seederType)) {
-                var seeder = (ISeeder)scopeProvider.GetRequiredService(seederType);
-                seeders.Add(seeder);
-
+                AsyncServiceScope scope = serviceProvider.CreateAsyncScope();
+                IServiceProvider scopeProvider = scope.ServiceProvider;
+                // Because of checks by the SeederGroup struct we know that the seeder inherits from ISeeder and thus is not null
+                var seeder = (ISeeder) scopeProvider.GetRequiredService(seederType);
+                Task seederTask = seeder.StartAsync(scopeProvider, ct); 
+                
+                // Because our scope has to be gracefully disposed, we add the scope here
+                seederTasks.Add((seederTask, scope));
             }
 
-            logger.LogDebug("ExecutionStep {step} : {count} Seeder(s) found, executing...", i++, seeders.Count);
-            await Task.WhenAll(seeders.Select(seeder => seeder.StartAsync(logger, ct)));
+            logger.LogDebug("ExecutionStep {step} : {count} Seeder(s) found, executing...", i++, seederTasks.Count);
+            await Task.WhenAll(seederTasks.Select(t => t.Item1));
+            
+            // Gracefully dispose the scope
+            foreach (AsyncServiceScope scope in seederTasks.Select(t => t.Item2)) {
+                await scope.DisposeAsync();
+            }
         }
 
         logger.LogInformation("All seeders completed in {i} steps", i);

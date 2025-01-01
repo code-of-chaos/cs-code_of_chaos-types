@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace CodeOfChaos.Types;
@@ -12,10 +13,14 @@ namespace CodeOfChaos.Types;
 ///     a base class for seeding operations with pre-seeding validation logic.
 /// </summary>
 public abstract class Seeder : ISeeder {
+    public bool ShouldSeed { get; private set; } = false;
+    
     /// <inheritdoc />
-    public async Task StartAsync(ILogger logger, CancellationToken ct = default) {
-        if (!await ShouldSeedAsync(ct)) {
-            logger.LogInformation("Skipping seeding");
+    public async Task StartAsync(IServiceProvider serviceProvider, CancellationToken ct = default) {
+        ShouldSeed = await ShouldSeedAsync(ct);
+        if (!ShouldSeed) {
+            var logger = serviceProvider.GetService<ILogger>();
+            logger?.LogInformation("Skipping seeding");
             return;
         }
 

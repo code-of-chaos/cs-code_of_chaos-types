@@ -1,8 +1,6 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using Microsoft.Extensions.Logging;
-
 namespace CodeOfChaos.Types;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -12,21 +10,29 @@ namespace CodeOfChaos.Types;
 ///     and executes the seeding logic if required.
 /// </summary>
 public interface ISeeder {
+    bool ShouldSeed { get; }
+    
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     /// <summary>
-    ///     Initiates the seeding process for the implementing class.
+    /// Initiates the seeding process for the implementing class.
     /// </summary>
-    /// <param name="logger">An instance of <see cref="ILogger" /> for logging operations.</param>
+    /// <param name="serviceProvider">
+    /// An instance of <see cref="IServiceProvider" /> used to resolve dependencies during the seeding process.
+    /// </param>
     /// <param name="ct">
-    ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete. Defaults to
-    ///     <see cref="CancellationToken.None" />.
+    /// A <see cref="CancellationToken" /> to observe while waiting for the task to complete. Defaults to
+    /// <see cref="CancellationToken.None" />.
     /// </param>
     /// <returns>A <see cref="Task" /> that represents the asynchronous operation.</returns>
     /// <remarks>
-    ///     This method should first checks whether seeding should occur by calling <c>ShouldSeedAsync</c>. If seeding is not
-    ///     needed, it logs an informational message and returns.
-    ///     If seeding is required, the method executes <c>SeedAsync</c>, respecting the provided cancellation token.
+    /// This method orchestrates the seeding process, ensuring any required dependencies are resolved via the provided
+    /// <c>serviceProvider</c>. If the implementation detects that seeding is unnecessary,
+    /// it will gracefully conclude the operation. If any steps in the seeding process require cancellation,
+    /// they will respect the provided <c>CancellationToken</c>.
     /// </remarks>
-    Task StartAsync(ILogger logger, CancellationToken ct = default);
+    Task StartAsync(IServiceProvider serviceProvider, CancellationToken ct = default);
 
     /// Determines whether the seeding process should proceed or be skipped.
     /// <param name="ct">A cancellation token that can be used to cancel the operation.</param>
