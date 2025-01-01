@@ -8,7 +8,7 @@
 
         <!-- Main package name -->
         <PackageId>CodeOfChaos.Types</PackageId>
-        <Version>0.6.1</Version>
+        <Version>0.7.0</Version>
         <Authors>Anna Sas</Authors>
         <Description>A library of common types and classes within the CodeOfChaos project</Description>
         <PackageProjectUrl>https://github.com/code-of-chaos/cs-code_of_chaos-types</PackageProjectUrl>
@@ -33,12 +33,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="AterraEngine.Unions" Version="2.5.0" />
-        <PackageReference Include="AterraEngine.Unions.Generators" Version="2.5.0">
+        <PackageReference Include="AterraEngine.Unions" Version="2.7.1" />
+        <PackageReference Include="AterraEngine.Unions.Generators" Version="2.7.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="CodeOfChaos.Extensions" Version="0.27.1" />
+        <PackageReference Include="CodeOfChaos.Extensions" Version="0.28.2" />
     </ItemGroup>
 
     <ItemGroup>
