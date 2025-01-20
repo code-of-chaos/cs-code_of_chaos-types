@@ -8,6 +8,8 @@ namespace CodeOfChaos.Types;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public interface IValueContainer {
+    Type UnderlyingType { get; }
+    
     bool TryGetAsValue<T>([NotNullWhen(true)] out T? output) where T : notnull;
-    Type GetTypeOfValue();
+    T GetAsValue<T>() where T : notnull;
 }

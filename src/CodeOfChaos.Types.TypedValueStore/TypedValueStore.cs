@@ -128,6 +128,11 @@ public class TypedValueStore<TKey> :
             && container.TryGetAsValue(out value);
     }
 
+    public T GetValue<T>(TKey key) where T : notnull {
+        if (_storage.TryGetValue(key, out IValueContainer? container)) return container.GetAsValue<T>();
+        throw new KeyNotFoundException();
+    }
+
     /// <summary>
     ///     Determines whether the store contains a specific key.
     /// </summary>
