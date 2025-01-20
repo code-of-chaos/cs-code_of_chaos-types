@@ -65,12 +65,8 @@ public readonly record struct NewValueContainer<T>(T Value) {
 
     public bool TryGetAsValue<T1>([NotNullWhen(true)] out T1? output) where T1 : notnull {
         switch (Value) {
-            case T1 castedValue:
-                output = castedValue;
-                return true;
-            default:
-                output = default;
-                return false;
+            case T1 castedValue: return (output = castedValue) is not null;
+            default: return (output = default) is not null;
         }
     }
 }

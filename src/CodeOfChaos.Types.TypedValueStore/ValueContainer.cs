@@ -22,13 +22,12 @@ public readonly record struct ValueContainer<T>(T Value) : IValueContainer where
         }
     }
     
-    // ReSharper disable once ConvertSwitchStatementToSwitchExpression
     public T1 GetAsValue<T1>() where T1 : notnull {
-        switch (Value) {
-            case T1 castedValue:
-                return castedValue;
-            default:
-                throw new InvalidCastException($"Value of type {UnderlyingType} cannot be casted to {typeof(T1)}");
-        }
+        return Value switch {
+            T1 castedValue => castedValue,
+            _ => throw new InvalidCastException($"Value of type {UnderlyingType} cannot be casted to {typeof(T1)}")
+        };
     }
+    
+    public object? GetBoxedValue() => Value;
 }

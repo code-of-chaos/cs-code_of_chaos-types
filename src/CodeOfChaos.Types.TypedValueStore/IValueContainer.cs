@@ -12,4 +12,6 @@ public interface IValueContainer {
     
     bool TryGetAsValue<T>([NotNullWhen(true)] out T? output) where T : notnull;
     T GetAsValue<T>() where T : notnull;
+    
+    object? GetBoxedValue();
 }

@@ -206,14 +206,15 @@ public class TypedValueStore<TKey> :
     /// </summary>
     /// <param name="other">The TypedValueStore to compare with the current TypedValueStore.</param>
     /// <returns>true if the specified TypedValueStore is equal to the current TypedValueStore; otherwise, false.</returns>
-    public bool Equals(TypedValueStore<TKey> other) {
+    public bool Equals(TypedValueStore<TKey>? other) {
+        if (other is null) return false;
+        if (ReferenceEquals(this, other)) return true;
         if (other._storage.Count != _storage.Count) return false;
 
+        // Check if all key-value pairs are equal
         foreach (KeyValuePair<TKey, IValueContainer> kvp in _storage) {
-            if (!other._storage.TryGetValue(kvp.Key, out IValueContainer? otherValue) ||
-                !Equals(kvp.Value, otherValue)) {
-                return false;
-            }
+            if (!other._storage.TryGetValue(kvp.Key, out IValueContainer? otherValue)) return false;
+            if (!Equals(kvp.Value.GetBoxedValue(), otherValue.GetBoxedValue())) return false;
         }
 
         return true;
