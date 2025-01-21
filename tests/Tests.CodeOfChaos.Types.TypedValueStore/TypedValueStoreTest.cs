@@ -379,6 +379,45 @@ public class TypedValueStoreTest {
         Console.WriteLine($"Time to retrieve {numberOfItems} items: {retrievalTime} ms");
     }
 
+    [Test]
+    public async Task GetOrAdd_ShouldReturnExistingValue() {
+        // Arrange
+        const string key = "testKey";
+        const string existingValue = "existingValue";
+        const string newValue = "newValue";
+        var store = new TypedValueStore();
+        store.TryAdd(key, existingValue); // Assuming Add is used to prefill values
+
+        // Act
+        // Try to get the value using GetOrAdd, if the key exists it should return the existing value
+        var result = store.GetOrAdd(key, () => newValue);
+
+        // Assert
+        await Assert.That(result).IsEqualTo(existingValue).Because("Expected the existing value to be returned.");
+    }
+
+    [Test]
+    public async Task GetOrAdd_ShouldReturnNewValue()
+    {
+        // Arrange: Create an instance of TypedValueStore.
+        var store = new TypedValueStore();
+
+        // Define a key that does not initially exist in the store.
+        const string key = "newKey";
+        const string expectedValue = "newValue";
+
+        // Act: Call GetOrAdd with the new key and a factory returning the desired value.
+        string actualValue = store.GetOrAdd(key, () => expectedValue);
+
+        // Assert: Verify that the returned value is the newly added value.
+        await Assert.That(actualValue).IsEqualTo(expectedValue).Because("Expected the newly added value to be returned.");
+
+        // Assert: Verify that the value is now actually stored and can be fetched by the key.
+        bool isKeyPresent = store.TryGetValue(key, out string? retrievedValue);
+        await Assert.That(isKeyPresent).IsTrue().Because("The key should be present after GetOrAdd.");
+        await Assert.That(retrievedValue).IsNotNullOrEmpty().And.IsEqualTo(expectedValue).Because("The stored value should match the value returned by GetOrAdd.");
+    }
+
     #region TryAdd_ShouldAddNewItem
     private static async Task TryAdd_ShouldAddNewItem<T>(string key, T value) where T : notnull {
         // Arrange
