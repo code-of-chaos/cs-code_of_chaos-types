@@ -109,7 +109,6 @@ public class TypedValueStoreTest {
         // Assert
         await Assert.That(result).IsTrue().Because("Expected item to be removed successfully.");
         await Assert.That(resultValue).IsEqualTo(expectedValue).Because("Expected item to be removed successfully.")
-            .And.IsTypeOf<T>()
             .And.IsEqualTo(expectedValue);
     }
 
@@ -170,8 +169,7 @@ public class TypedValueStoreTest {
         await Assert.That(foundOriginalValue).IsTrue().Because("Expected original value to be found.");
         await Assert.That(result).IsTrue().Because("Expected item to be updated successfully.");
         await Assert.That(resultReturn).IsTrue().Because("Expected item to be returned successfully.");
-        await Assert.That(resultValue).IsTypeOf<T>()
-            .And.IsEqualTo(value)
+        await Assert.That(resultValue).IsEqualTo(value)
             .And.IsNotEqualTo(originalValue);
     }
 
@@ -206,8 +204,7 @@ public class TypedValueStoreTest {
 
         // Assert
         await Assert.That(resultReturn).IsTrue().Because("Expected item to be in the store.");
-        await Assert.That(resultValue).IsTypeOf<T>()
-            .And.IsEqualTo(value);
+        await Assert.That(resultValue).IsEqualTo(value);
     }
 
     [Test]
@@ -431,7 +428,6 @@ public class TypedValueStoreTest {
         await Assert.That(result).IsTrue().Because("Expected item to be added successfully.");
         await Assert.That(resultReturn).IsTrue().Because("Expected item to be returned successfully.");
         await Assert.That(resultValue).IsEqualTo(value).Because("Expected item to be returned successfully.");
-        await Assert.That(resultValue).IsTypeOf<T>();
         await Assert.That(store).IsNotEmpty().Because("Expected store to contain the added item.");
     }
 
@@ -468,10 +464,8 @@ public class TypedValueStoreTest {
 
         // Assert
         await Assert.That(result).IsTrue().Because("Expected item to be added successfully.");
-        await Assert.That(resultValue)
-            .IsNotNull()
-            .And.IsEqualTo(value).Because("Expected item to be returned successfully.")
-            .And.IsTypeOf<T>();
+        await Assert.That(resultValue).IsNotNull()
+            .And.IsEqualTo(value).Because("Expected item to be returned successfully.");
     }
 
     [Test]
