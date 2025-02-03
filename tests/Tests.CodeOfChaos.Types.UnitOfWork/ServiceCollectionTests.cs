@@ -4,6 +4,7 @@
 using CodeOfChaos.Types.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Tests.CodeOfChaos.Types.UnitOfWork.Assets;
 
 namespace Tests.CodeOfChaos.Types.UnitOfWork;
 
@@ -71,15 +72,5 @@ public class ServiceCollectionTests {
         await Assert.That(otherUnitOfWork).IsNotNull()
             .And.IsTypeOf<UnitOfWork<OtherDbContext>>();
         
-    }
-
-    public class DefaultDbContext : DbContext {
-        public DefaultDbContext() : base() {}
-        public DefaultDbContext(DbContextOptions<DefaultDbContext> options) : base(options) {}
-    }
-
-    public class OtherDbContext : DbContext {
-        public OtherDbContext() : base() {}
-        public OtherDbContext(DbContextOptions<OtherDbContext> options) : base(options) {}
     }
 }

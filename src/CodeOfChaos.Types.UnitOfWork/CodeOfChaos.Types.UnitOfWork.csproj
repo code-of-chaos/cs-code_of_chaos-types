@@ -13,6 +13,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\CodeOfChaos.Types\CodeOfChaos.Types.csproj" />
+      <ProjectReference Include="..\CodeOfChoas.Types.UnitOfWork.Contracts\CodeOfChoas.Types.UnitOfWork.Contracts.csproj" />
     </ItemGroup>
 
 </Project>

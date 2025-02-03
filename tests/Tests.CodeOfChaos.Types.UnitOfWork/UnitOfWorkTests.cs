@@ -1,0 +1,225 @@
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using CodeOfChaos.Types.UnitOfWork;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
+using System.Collections.Concurrent;
+using Tests.CodeOfChaos.Types.UnitOfWork.Assets;
+
+namespace Tests.CodeOfChaos.Types.UnitOfWork;
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+public class UnitOfWorkTests {
+    private Mock<IDbContextFactory<MockDbContext>> _dbContextFactory = default!;
+    private Mock<IServiceScope> _serviceScope = default!;
+    private Mock<IServiceProvider> _serviceProvider = default!;
+
+    private UnitOfWork<MockDbContext> _unitOfWork = default!;
+    private Mock<MockDbContext> _dbContext = default!;
+    private Mock<IDbContextTransaction> _dbTransaction = default!;
+
+    [Before(Test)]
+    public void Setup() {
+        _dbContextFactory = new Mock<IDbContextFactory<MockDbContext>>();
+        _serviceScope = new Mock<IServiceScope>();
+        _serviceProvider = new Mock<IServiceProvider>();
+
+        // Configure DbContextOptions with the InMemory provider
+        DbContextOptions<MockDbContext> options = new DbContextOptionsBuilder<MockDbContext>()
+            .UseInMemoryDatabase("TestDatabase")
+            .Options;
+
+        // Create a real MockDbContext (no Moq here since Moq/mocking DbContext often encounters internal EF issues)
+        _dbContext = new Mock<MockDbContext>(options) { CallBase = true };
+    
+        _dbTransaction = new Mock<IDbContextTransaction>();
+
+        // Mock the DatabaseFacade for the DbContext and its transaction behavior
+        var mockDatabaseFacade = new Mock<DatabaseFacade>(_dbContext.Object);
+
+        mockDatabaseFacade
+            .Setup(db => db.BeginTransactionAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(_dbTransaction.Object);
+        mockDatabaseFacade
+            .Setup(db => db.CurrentTransaction)
+            .Returns(() => _dbTransaction.Object);
+
+        _dbTransaction
+            .Setup(t => t.SupportsSavepoints)
+            .Returns(true);
+
+        _dbContext
+            .Setup(db => db.Database)
+            .Returns(mockDatabaseFacade.Object);
+
+        _dbContextFactory
+            .Setup(d => d.CreateDbContextAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(_dbContext.Object);
+
+        _serviceScope
+            .Setup(s => s.ServiceProvider)
+            .Returns(_serviceProvider.Object);
+
+        _unitOfWork = new UnitOfWork<MockDbContext>(_dbContextFactory.Object, _serviceScope.Object);
+
+    }
+
+    [After(Test)]
+    public async Task Cleanup() {
+        await _unitOfWork.DisposeAsync();
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Tests
+    // -----------------------------------------------------------------------------------------------------------------
+
+    [Test]
+    public async Task SaveChangesAsync_ShouldSaveChangesInDbContext() {
+        // Act
+        await _unitOfWork.SaveChangesAsync();
+
+        // Assert
+        _dbContext.Verify(db => db.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Test]
+    public async Task TryCreateTransactionAsync_ShouldBeginNewTransaction() {
+        // Arrange
+        _dbContext.Setup(db => db.Database.CurrentTransaction).Returns(() => null);
+        _dbContext.Setup(db => db.Database.BeginTransactionAsync(It.IsAny<CancellationToken>()))
+                  .ReturnsAsync(_dbTransaction.Object);
+
+        // Act
+        bool result = await _unitOfWork.TryCreateTransactionAsync();
+
+        // Assert
+        await Assert.That(result).IsTrue();
+        _dbContext.Verify(db => db.Database.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Test]
+    public async Task TryCommitTransactionAsync_ShouldCommitTransaction() {
+        // Arrange
+        _dbContext.Setup(db => db.Database.BeginTransactionAsync(It.IsAny<CancellationToken>()))
+                  .ReturnsAsync(_dbTransaction.Object);
+
+        await _unitOfWork.TryCreateTransactionAsync();
+
+        // Act
+        bool result = await _unitOfWork.TryCommitTransactionAsync();
+
+        // Assert
+        await Assert.That(result).IsTrue();
+        _dbTransaction.Verify(transaction => transaction.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _dbTransaction.Verify(transaction => transaction.Dispose(), Times.Once);
+    }
+
+    [Test]
+    public async Task TryRollbackTransactionAsync_ShouldRollbackTransaction() {
+        // Arrange
+        _dbContext.Setup(db => db.Database.BeginTransactionAsync(It.IsAny<CancellationToken>()))
+                  .ReturnsAsync(_dbTransaction.Object);
+
+        await _unitOfWork.TryCreateTransactionAsync();
+
+        // Act
+        bool result = await _unitOfWork.TryRollbackTransactionAsync();
+
+        // Assert
+        await Assert.That(result).IsTrue();
+        _dbTransaction.Verify(transaction => transaction.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _dbTransaction.Verify(transaction => transaction.DisposeAsync(), Times.Once);
+    }
+
+    [Test]
+    public async Task TryCreateSavepointAsync_ShouldCreateSavepoint() {
+        // Arrange
+        var savepointId = Guid.NewGuid();
+        _dbContext.Setup(db => db.Database.BeginTransactionAsync(It.IsAny<CancellationToken>()))
+                  .ReturnsAsync(_dbTransaction.Object);
+        _dbTransaction.Setup(t => t.SupportsSavepoints).Returns(true);
+
+        await _unitOfWork.TryCreateTransactionAsync();
+
+        // Act
+        bool result = await _unitOfWork.TryCreateSavepointAsync(savepointId);
+
+        // Assert
+        await Assert.That(result).IsTrue();
+        _dbTransaction.Verify(transaction => transaction.CreateSavepointAsync(savepointId.ToString("N"), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Test]
+    public async Task TryRollbackToSavepointAsync_ShouldRollbackToSpecificSavepoint() {
+        // Arrange
+        var savepointId = Guid.NewGuid();
+        _dbContext.Setup(db => db.Database.BeginTransactionAsync(It.IsAny<CancellationToken>()))
+                  .ReturnsAsync(_dbTransaction.Object);
+        _dbTransaction.Setup(t => t.SupportsSavepoints).Returns(true);
+
+        await _unitOfWork.TryCreateTransactionAsync();
+
+        // Act
+        bool result = await _unitOfWork.TryRollbackToSavepointAsync(savepointId);
+
+        // Assert
+        await Assert.That(result).IsTrue();
+        _dbTransaction.Verify(transaction => transaction.RollbackToSavepointAsync(savepointId.ToString("N"), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Test]
+    public async Task GetDbContextAsync_ShouldReturnDbContext() {
+        // Act
+        var dbContext = await _unitOfWork.GetDbContextAsync<MockDbContext>();
+
+        // Assert
+        _dbContextFactory.Verify(factory => factory.CreateDbContextAsync(It.IsAny<CancellationToken>()), Times.Once);
+        await Assert.That(dbContext).IsNotNull();
+        await Assert.That(_dbContext.Object).IsEqualTo(dbContext);
+    }
+
+    [Test]
+    public async Task GetDbContextAsync_ShouldThrowForUnsupportedDbContextType() {
+        // Act & Assert
+        await Assert.ThrowsAsync<NotSupportedException>(async () => await _unitOfWork.GetDbContextAsync<OtherDbContext>());
+    }
+
+    [Test]
+    public async Task GetRepository_ShouldRetrieveRepositoryFromServiceProvider() {
+        // Arrange
+        var mockRepository = new Mock<IRepository>();
+        _serviceProvider
+            .Setup(sp => sp.GetService(typeof(IRepository)))
+            .Returns(mockRepository.Object);
+
+
+        // Act
+        var repository = _unitOfWork.GetRepository<IRepository>();
+
+        // Assert
+        await Assert.That(repository).IsNotNull();
+        await Assert.That(mockRepository.Object).IsEqualTo(repository);
+    }
+
+    [Test]
+    public async Task DisposeAsync_ShouldDisposeUnitOfWorkProperly() {
+        // Arrange
+        _dbContext.Setup(db => db.Database.BeginTransactionAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(_dbTransaction.Object);
+
+        await _unitOfWork.TryCreateTransactionAsync();
+
+        // Act
+        await _unitOfWork.DisposeAsync();
+
+        // Assert
+        _dbTransaction.Verify(transaction => transaction.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _dbTransaction.Verify(transaction => transaction.DisposeAsync(), Times.Once);
+    }
+}

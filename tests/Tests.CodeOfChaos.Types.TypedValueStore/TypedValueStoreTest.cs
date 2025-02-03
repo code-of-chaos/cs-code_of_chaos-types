@@ -387,7 +387,7 @@ public class TypedValueStoreTest {
 
         // Act
         // Try to get the value using GetOrAdd, if the key exists it should return the existing value
-        var result = store.GetOrAdd(key, () => newValue);
+        string? result = store.GetOrAdd(key, () => newValue);
 
         // Assert
         await Assert.That(result).IsEqualTo(existingValue).Because("Expected the existing value to be returned.");

@@ -38,7 +38,11 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
         if (_transaction != null) return false;
         
         TDbContext dbContext = await _db.GetValueAsync(ct);
-        if (dbContext.Database.CurrentTransaction != null) return false;
+        if (dbContext.Database.CurrentTransaction != null) {
+            // Something went wrong during saving before and the transaction wasn't set by the unit of work
+            _transaction = dbContext.Database.CurrentTransaction;
+            return true;
+        }
         
         _transaction = await dbContext.Database.BeginTransactionAsync(ct);
         
@@ -49,7 +53,7 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
         if (_transaction == null) return false;
 
         await _transaction.RollbackAsync(ct);
-        _transaction.Dispose();
+        await _transaction.DisposeAsync();
         _transaction = null;
 
         return true;
@@ -92,11 +96,7 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
     }
 
     public virtual async ValueTask DisposeAsync() {
-        if (_transaction != null) {
-            await TryRollbackTransactionAsync();
-            await _transaction.DisposeAsync();
-            _transaction = null;
-        }
+        if (_transaction != null) await TryRollbackTransactionAsync();
 
         if (!AttachedRepositories.IsEmpty) {
             // First detach all references to this unit of work
