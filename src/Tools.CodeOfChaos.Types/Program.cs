@@ -24,7 +24,9 @@ public static class Program {
         string projects = string.Join(";",
             "CodeOfChaos.Types",
             "CodeOfChaos.Types.TypedValueStore",
-            "CodeOfChaos.Types.DataSeeder"
+            "CodeOfChaos.Types.DataSeeder",
+            "CodeOfChaos.Types.UnitOfWork",
+            "CodeOfChaos.Types.UnitOfWork.Contracts"
         );
         string oneLineArgs = InputHelper.ToOneLine(args).Replace("%PROJECTS%", projects);
 

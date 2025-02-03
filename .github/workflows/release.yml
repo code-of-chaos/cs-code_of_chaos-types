@@ -34,6 +34,9 @@ jobs:
             - name: Run tests - Extensions
               run: dotnet run -c Release --no-restore --no-build
               working-directory: "tests/Tests.CodeOfChaos.Types.DataSeeder"
+            - name: Run tests - CodeOfChaos.Types.UnitOfWork
+              run: dotnet run -c Release --no-restore --no-build
+              working-directory: "tests/Tests.CodeOfChaos.Types.UnitOfWork"
 
             - name: Publish to NuGet
               env:
@@ -42,3 +45,4 @@ jobs:
                   dotnet nuget push src/CodeOfChaos.Types/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
                   dotnet nuget push src/CodeOfChaos.Types.TypedValueStore/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
                   dotnet nuget push src/CodeOfChaos.Types.DataSeeder/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
+                  dotnet nuget push src/CodeOfChaos.Types.UnitOfWork/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
