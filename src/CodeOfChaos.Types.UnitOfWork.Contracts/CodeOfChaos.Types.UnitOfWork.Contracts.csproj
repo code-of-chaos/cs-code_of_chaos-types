@@ -4,15 +4,16 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>CodeOfChaos.Types</RootNamespace>
+        
+        <RootNamespace>CodeOfChaos.Types.UnitOfWork</RootNamespace>
 
         <!-- Main package name -->
-        <PackageId>CodeOfChaos.Types.TypedValueStore</PackageId>
+        <PackageId>CodeOfChaos.Types.UnitOfWork.Contracts</PackageId>
         <Version>0.13.0</Version>
         <Authors>Anna Sas</Authors>
-        <Description>A small library housing TypedValueStore typings</Description>
+        <Description>A small library housing UnitOfWork typings for EntityFrameworkCore</Description>
         <PackageProjectUrl>https://github.com/code-of-chaos/cs-code_of_chaos-types</PackageProjectUrl>
-        <PackageTags>typing</PackageTags>
+        <PackageTags>typing unitofwork uow entityframework</PackageTags>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <IncludeSymbols>true</IncludeSymbols>
@@ -21,11 +22,10 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>icon.png</PackageIcon>
     </PropertyGroup>
-
+    
     <ItemGroup>
-        <None Include="../../LICENSE" Pack="true" PackagePath="" Visible="false" />
-        <None Include="../../README.md" Pack="true" PackagePath="" Visible="false" />
-        <None Include="../../assets/icon.png" Pack="true" PackagePath="" Visible="false" />
+        <PackageReference Include="CodeOfChaos.Extensions.DependencyInjection" Version="0.32.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
     </ItemGroup>
 
 </Project>

@@ -26,7 +26,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeOfChaos.Types.UnitOfWor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.CodeOfChaos.Types.UnitOfWork", "tests\Tests.CodeOfChaos.Types.UnitOfWork\Tests.CodeOfChaos.Types.UnitOfWork.csproj", "{58C5DC7B-083F-42B0-AE5E-A7F662C0EF39}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeOfChoas.Types.UnitOfWork.Contracts", "src\CodeOfChoas.Types.UnitOfWork.Contracts\CodeOfChoas.Types.UnitOfWork.Contracts.csproj", "{9B998187-74B9-4B75-83DD-76CF822BAFB3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeOfChaos.Types.UnitOfWork.Contracts", "src\CodeOfChaos.Types.UnitOfWork.Contracts\CodeOfChaos.Types.UnitOfWork.Contracts.csproj", "{9B998187-74B9-4B75-83DD-76CF822BAFB3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
