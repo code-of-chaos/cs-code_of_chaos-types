@@ -20,5 +20,5 @@ public interface IUnitOfWork : IAsyncDisposable {
     
     ValueTask<TDbContext> GetDbContextAsync<TDbContext>(CancellationToken ct = default) where TDbContext : DbContext;
 
-    TRepo GetRepository<TRepo>() where TRepo : class, IRepository;
+    TRepo GetRepository<TRepo>() where TRepo : class, ICanAttachToUnitOfWork;
 }
