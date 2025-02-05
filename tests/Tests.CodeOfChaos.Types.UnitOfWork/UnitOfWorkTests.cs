@@ -193,14 +193,14 @@ public class UnitOfWorkTests {
     [Test]
     public async Task GetRepository_ShouldRetrieveRepositoryFromServiceProvider() {
         // Arrange
-        var mockRepository = new Mock<ICanAttachToUnitOfWork>();
+        var mockRepository = new Mock<IToUnitOfWorkRepository>();
         _serviceProvider
-            .Setup(sp => sp.GetService(typeof(ICanAttachToUnitOfWork)))
+            .Setup(sp => sp.GetService(typeof(IToUnitOfWorkRepository)))
             .Returns(mockRepository.Object);
 
 
         // Act
-        var repository = _unitOfWork.GetRepository<ICanAttachToUnitOfWork>();
+        var repository = _unitOfWork.GetRepository<IToUnitOfWorkRepository>();
 
         // Assert
         await Assert.That(repository).IsNotNull();

@@ -5,7 +5,4 @@ namespace CodeOfChaos.Types.UnitOfWork;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface ICanAttachToUnitOfWork {
-    void Attach(IUnitOfWork unitOfWork);
-    void Detach(IUnitOfWork unitOfWork);
-}
+public interface IToUnitOfWorkRepository;

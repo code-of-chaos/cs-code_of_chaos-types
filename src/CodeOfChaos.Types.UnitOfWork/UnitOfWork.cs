@@ -14,7 +14,7 @@ namespace CodeOfChaos.Types.UnitOfWork;
 public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFactory, IServiceScope serviceScope) : IUnitOfWork where TDbContext : DbContext{
     private readonly AsyncLazy<TDbContext> _db = new(async ct => await dbContextFactory.CreateDbContextAsync(ct));
     private IDbContextTransaction? _transaction;
-    private ConcurrentDictionary<Type, ICanAttachToUnitOfWork> AttachedRepositories { get; } = [];
+    private ConcurrentDictionary<Type, IToUnitOfWorkRepository> AttachedRepositories { get; } = [];
     
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -84,13 +84,12 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
         return dbContext as T ?? throw new InvalidCastException($"Cannot cast DbContext of type '{dbContext.GetType()}' to '{typeof(T)}'");
     }
 
-    public virtual TRepo GetRepository<TRepo>() where TRepo : class, ICanAttachToUnitOfWork {
-        if (AttachedRepositories.TryGetValue(typeof(TRepo), out ICanAttachToUnitOfWork? cachedRepo) && cachedRepo is TRepo castedCachedRepo) return castedCachedRepo;
+    public virtual TRepo GetRepository<TRepo>() where TRepo : class, IToUnitOfWorkRepository {
+        if (AttachedRepositories.TryGetValue(typeof(TRepo), out IToUnitOfWorkRepository? cachedRepo) && cachedRepo is TRepo castedCachedRepo) return castedCachedRepo;
         
         // Cache miss so we create a new instance
         var repo = serviceScope.ServiceProvider.GetRequiredService<TRepo>();
         
-        repo.Attach(this);
         AttachedRepositories.AddOrUpdate(typeof(TRepo), repo); 
         return repo;
     }
@@ -99,12 +98,6 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
         if (_transaction != null) await TryRollbackTransactionAsync();
 
         if (!AttachedRepositories.IsEmpty) {
-            // First detach all references to this unit of work
-            foreach ((_, ICanAttachToUnitOfWork repo) in AttachedRepositories) {
-                repo.Detach(this);
-            }
-            
-            // Then clear our own reference to them
             AttachedRepositories.Clear();
         }
         
