@@ -5,4 +5,4 @@ namespace CodeOfChaos.Types.UnitOfWork;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IToUnitOfWorkRepository;
+public interface IUnitOfWorkRepository;
