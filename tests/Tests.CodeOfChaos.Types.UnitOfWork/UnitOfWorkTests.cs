@@ -200,7 +200,7 @@ public class UnitOfWorkTests {
 
 
         // Act
-        var repository = _unitOfWork.GetRepository<IUnitOfWorkRepository>();
+        var repository = await _unitOfWork.GetRepositoryAsync<IUnitOfWorkRepository>();
 
         // Assert
         await Assert.That(repository).IsNotNull();

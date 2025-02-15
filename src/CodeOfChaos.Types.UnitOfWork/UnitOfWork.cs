@@ -84,11 +84,13 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
         return dbContext as T ?? throw new InvalidCastException($"Cannot cast DbContext of type '{dbContext.GetType()}' to '{typeof(T)}'");
     }
 
-    public virtual TRepo GetRepository<TRepo>() where TRepo : class, IUnitOfWorkRepository {
+    public virtual async ValueTask<TRepo> GetRepositoryAsync<TRepo>(CancellationToken ct = default) where TRepo : class, IUnitOfWorkRepository {
         if (AttachedRepositories.TryGetValue(typeof(TRepo), out IUnitOfWorkRepository? cachedRepo) && cachedRepo is TRepo castedCachedRepo) return castedCachedRepo;
         
         // Cache miss so we create a new instance
         var repo = serviceScope.ServiceProvider.GetRequiredService<TRepo>();
+        if (repo is not UnitOfWorkRepository<TDbContext> castedRepo) throw new InvalidCastException($"Cannot cast repository of type '{repo.GetType()}' to '{typeof(TRepo)}'");
+        await castedRepo.AttachAsync(this, ct);
         
         AttachedRepositories.AddOrUpdate(typeof(TRepo), repo); 
         return repo;
@@ -98,6 +100,10 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
         if (_transaction != null) await TryRollbackTransactionAsync();
 
         if (!AttachedRepositories.IsEmpty) {
+            foreach (IUnitOfWorkRepository repository in AttachedRepositories.Values) {
+                if (repository is not UnitOfWorkRepository<TDbContext> castedRepo) continue;
+                castedRepo.Detach();
+            }
             AttachedRepositories.Clear();
         }
         
