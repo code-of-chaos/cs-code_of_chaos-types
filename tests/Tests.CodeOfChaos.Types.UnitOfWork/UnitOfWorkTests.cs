@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using System.Collections.Concurrent;
 using Tests.CodeOfChaos.Types.UnitOfWork.Assets;
 
 namespace Tests.CodeOfChaos.Types.UnitOfWork;
@@ -193,18 +192,19 @@ public class UnitOfWorkTests {
     [Test]
     public async Task GetRepository_ShouldRetrieveRepositoryFromServiceProvider() {
         // Arrange
-        var mockRepository = new Mock<IUnitOfWorkRepository>();
-        _serviceProvider
-            .Setup(sp => sp.GetService(typeof(IUnitOfWorkRepository)))
-            .Returns(mockRepository.Object);
-
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddDbContextFactory<DefaultDbContext>();
+        services.AddUnitOfWork<DefaultDbContext>();
+        services.AddTransient<DefaultRepository>();
+        ServiceProvider provider = services.BuildServiceProvider();
+        var unitOfWork = provider.GetRequiredService<IUnitOfWorkFactory>().Create();
 
         // Act
-        var repository = await _unitOfWork.GetRepositoryAsync<IUnitOfWorkRepository>();
+        var repository = await unitOfWork.GetRepositoryAsync<DefaultRepository>();
 
         // Assert
         await Assert.That(repository).IsNotNull();
-        await Assert.That(mockRepository.Object).IsEqualTo(repository);
     }
 
     [Test]
