@@ -8,7 +8,7 @@ namespace CodeOfChaos.Types.UnitOfWork;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public static class ServiceCollectionExtenions {
+public static class ServiceCollectionExtensions {
     public static IServiceCollection AddUnitOfWork<TDbContext>(this IServiceCollection services) where TDbContext : DbContext {
         services.AddScoped<IUnitOfWorkFactory, UnitOfWorkFactory<TDbContext>>();
         services.AddScoped<IUnitOfWork>(static sp => sp.GetRequiredService<IUnitOfWorkFactory>().Create());
