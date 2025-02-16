@@ -10,18 +10,17 @@ using Moq;
 using Tests.CodeOfChaos.Types.UnitOfWork.Assets;
 
 namespace Tests.CodeOfChaos.Types.UnitOfWork;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class UnitOfWorkTests {
+    private Mock<MockDbContext> _dbContext = default!;
     private Mock<IDbContextFactory<MockDbContext>> _dbContextFactory = default!;
-    private Mock<IServiceScope> _serviceScope = default!;
+    private Mock<IDbContextTransaction> _dbTransaction = default!;
     private Mock<IServiceProvider> _serviceProvider = default!;
+    private Mock<IServiceScope> _serviceScope = default!;
 
     private UnitOfWork<MockDbContext> _unitOfWork = default!;
-    private Mock<MockDbContext> _dbContext = default!;
-    private Mock<IDbContextTransaction> _dbTransaction = default!;
 
     [Before(Test)]
     public void Setup() {
@@ -36,7 +35,7 @@ public class UnitOfWorkTests {
 
         // Create a real MockDbContext (no Moq here since Moq/mocking DbContext often encounters internal EF issues)
         _dbContext = new Mock<MockDbContext>(options) { CallBase = true };
-    
+
         _dbTransaction = new Mock<IDbContextTransaction>();
 
         // Mock the DatabaseFacade for the DbContext and its transaction behavior
@@ -45,6 +44,7 @@ public class UnitOfWorkTests {
         mockDatabaseFacade
             .Setup(db => db.BeginTransactionAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(_dbTransaction.Object);
+
         mockDatabaseFacade
             .Setup(db => db.CurrentTransaction)
             .Returns(() => _dbTransaction.Object);
@@ -84,7 +84,7 @@ public class UnitOfWorkTests {
         await _unitOfWork.SaveChangesAsync();
 
         // Assert
-        _dbContext.Verify(db => db.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _dbContext.Verify(expression: db => db.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test]
@@ -92,21 +92,21 @@ public class UnitOfWorkTests {
         // Arrange
         _dbContext.Setup(db => db.Database.CurrentTransaction).Returns(() => null);
         _dbContext.Setup(db => db.Database.BeginTransactionAsync(It.IsAny<CancellationToken>()))
-                  .ReturnsAsync(_dbTransaction.Object);
+            .ReturnsAsync(_dbTransaction.Object);
 
         // Act
         bool result = await _unitOfWork.TryCreateTransactionAsync();
 
         // Assert
         await Assert.That(result).IsTrue();
-        _dbContext.Verify(db => db.Database.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _dbContext.Verify(expression: db => db.Database.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test]
     public async Task TryCommitTransactionAsync_ShouldCommitTransaction() {
         // Arrange
         _dbContext.Setup(db => db.Database.BeginTransactionAsync(It.IsAny<CancellationToken>()))
-                  .ReturnsAsync(_dbTransaction.Object);
+            .ReturnsAsync(_dbTransaction.Object);
 
         await _unitOfWork.TryCreateTransactionAsync();
 
@@ -115,15 +115,15 @@ public class UnitOfWorkTests {
 
         // Assert
         await Assert.That(result).IsTrue();
-        _dbTransaction.Verify(transaction => transaction.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
-        _dbTransaction.Verify(transaction => transaction.Dispose(), Times.Once);
+        _dbTransaction.Verify(expression: transaction => transaction.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _dbTransaction.Verify(expression: transaction => transaction.Dispose(), Times.Once);
     }
 
     [Test]
     public async Task TryRollbackTransactionAsync_ShouldRollbackTransaction() {
         // Arrange
         _dbContext.Setup(db => db.Database.BeginTransactionAsync(It.IsAny<CancellationToken>()))
-                  .ReturnsAsync(_dbTransaction.Object);
+            .ReturnsAsync(_dbTransaction.Object);
 
         await _unitOfWork.TryCreateTransactionAsync();
 
@@ -132,8 +132,8 @@ public class UnitOfWorkTests {
 
         // Assert
         await Assert.That(result).IsTrue();
-        _dbTransaction.Verify(transaction => transaction.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
-        _dbTransaction.Verify(transaction => transaction.DisposeAsync(), Times.Once);
+        _dbTransaction.Verify(expression: transaction => transaction.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _dbTransaction.Verify(expression: transaction => transaction.DisposeAsync(), Times.Once);
     }
 
     [Test]
@@ -141,7 +141,8 @@ public class UnitOfWorkTests {
         // Arrange
         var savepointId = Guid.NewGuid();
         _dbContext.Setup(db => db.Database.BeginTransactionAsync(It.IsAny<CancellationToken>()))
-                  .ReturnsAsync(_dbTransaction.Object);
+            .ReturnsAsync(_dbTransaction.Object);
+
         _dbTransaction.Setup(t => t.SupportsSavepoints).Returns(true);
 
         await _unitOfWork.TryCreateTransactionAsync();
@@ -151,7 +152,7 @@ public class UnitOfWorkTests {
 
         // Assert
         await Assert.That(result).IsTrue();
-        _dbTransaction.Verify(transaction => transaction.CreateSavepointAsync(savepointId.ToString("N"), It.IsAny<CancellationToken>()), Times.Once);
+        _dbTransaction.Verify(expression: transaction => transaction.CreateSavepointAsync(savepointId.ToString("N"), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test]
@@ -159,7 +160,8 @@ public class UnitOfWorkTests {
         // Arrange
         var savepointId = Guid.NewGuid();
         _dbContext.Setup(db => db.Database.BeginTransactionAsync(It.IsAny<CancellationToken>()))
-                  .ReturnsAsync(_dbTransaction.Object);
+            .ReturnsAsync(_dbTransaction.Object);
+
         _dbTransaction.Setup(t => t.SupportsSavepoints).Returns(true);
 
         await _unitOfWork.TryCreateTransactionAsync();
@@ -169,7 +171,7 @@ public class UnitOfWorkTests {
 
         // Assert
         await Assert.That(result).IsTrue();
-        _dbTransaction.Verify(transaction => transaction.RollbackToSavepointAsync(savepointId.ToString("N"), It.IsAny<CancellationToken>()), Times.Once);
+        _dbTransaction.Verify(expression: transaction => transaction.RollbackToSavepointAsync(savepointId.ToString("N"), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test]
@@ -178,7 +180,7 @@ public class UnitOfWorkTests {
         var dbContext = await _unitOfWork.GetDbContextAsync<MockDbContext>();
 
         // Assert
-        _dbContextFactory.Verify(factory => factory.CreateDbContextAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _dbContextFactory.Verify(expression: factory => factory.CreateDbContextAsync(It.IsAny<CancellationToken>()), Times.Once);
         await Assert.That(dbContext).IsNotNull();
         await Assert.That(_dbContext.Object).IsEqualTo(dbContext);
     }
@@ -198,7 +200,7 @@ public class UnitOfWorkTests {
         services.AddUnitOfWork<DefaultDbContext>();
         services.AddTransient<DefaultRepository>();
         ServiceProvider provider = services.BuildServiceProvider();
-        var unitOfWork = provider.GetRequiredService<IUnitOfWorkFactory>().Create();
+        IUnitOfWork unitOfWork = provider.GetRequiredService<IUnitOfWorkFactory>().Create();
 
         // Act
         var repository = await unitOfWork.GetRepositoryAsync<DefaultRepository>();
@@ -219,7 +221,7 @@ public class UnitOfWorkTests {
         await _unitOfWork.DisposeAsync();
 
         // Assert
-        _dbTransaction.Verify(transaction => transaction.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
-        _dbTransaction.Verify(transaction => transaction.DisposeAsync(), Times.Once);
+        _dbTransaction.Verify(expression: transaction => transaction.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _dbTransaction.Verify(expression: transaction => transaction.DisposeAsync(), Times.Once);
     }
 }

@@ -4,15 +4,13 @@
 using Microsoft.EntityFrameworkCore;
 
 namespace CodeOfChaos.Types.UnitOfWork;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public abstract class UnitOfWorkRepository<TDbContext> : IUnitOfWorkRepository 
-    where TDbContext : DbContext
-{
+public abstract class UnitOfWorkRepository<TDbContext> : IUnitOfWorkRepository
+    where TDbContext : DbContext {
     private TDbContext? DbContext { get; set; }
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------

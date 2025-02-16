@@ -28,6 +28,7 @@ public static class Program {
             "CodeOfChaos.Types.UnitOfWork",
             "CodeOfChaos.Types.UnitOfWork.Contracts"
         );
+
         string oneLineArgs = InputHelper.ToOneLine(args).Replace("%PROJECTS%", projects);
 
         // Finally start executing

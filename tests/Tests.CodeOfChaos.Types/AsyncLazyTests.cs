@@ -113,6 +113,7 @@ public class AsyncLazyTests {
             Interlocked.Increment(ref callCount);
             return Task.FromResult(42);
         });
+
         const int count = 100;
         var tasks = new List<Task<int>>();
 
@@ -138,6 +139,7 @@ public class AsyncLazyTests {
             Interlocked.Increment(ref callCount);
             return Task.FromResult(42);
         });
+
         const int count = 100;
         int[] results = new int[count];// To store the results of parallel invocations
         var parallelTasks = new List<Task>();
@@ -164,6 +166,7 @@ public class AsyncLazyTests {
             Interlocked.Exchange(ref sharedValue, 0);// Initialize the shared value atomically
             return Task.FromResult(sharedValue);
         });
+
         const int count = 100;
 
         // Increment the value safely within `AsyncLazy`
@@ -196,6 +199,7 @@ public class AsyncLazyTests {
             Interlocked.Exchange(ref sharedValue, 0);// Initialize the shared value atomically
             return Task.FromResult(sharedValue);
         });
+
         const int count = 100;
         var results = new ConcurrentBag<int>();
 

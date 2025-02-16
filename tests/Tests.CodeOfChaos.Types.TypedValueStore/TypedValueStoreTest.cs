@@ -383,19 +383,18 @@ public class TypedValueStoreTest {
         const string existingValue = "existingValue";
         const string newValue = "newValue";
         var store = new TypedValueStore();
-        store.TryAdd(key, existingValue); // Assuming Add is used to prefill values
+        store.TryAdd(key, existingValue);// Assuming Add is used to prefill values
 
         // Act
         // Try to get the value using GetOrAdd, if the key exists it should return the existing value
-        string? result = store.GetOrAdd(key, () => newValue);
+        string? result = store.GetOrAdd(key, valueFactory: () => newValue);
 
         // Assert
         await Assert.That(result).IsEqualTo(existingValue).Because("Expected the existing value to be returned.");
     }
 
     [Test]
-    public async Task GetOrAdd_ShouldReturnNewValue()
-    {
+    public async Task GetOrAdd_ShouldReturnNewValue() {
         // Arrange: Create an instance of TypedValueStore.
         var store = new TypedValueStore();
 
@@ -404,7 +403,7 @@ public class TypedValueStoreTest {
         const string expectedValue = "newValue";
 
         // Act: Call GetOrAdd with the new key and a factory returning the desired value.
-        string actualValue = store.GetOrAdd(key, () => expectedValue);
+        string actualValue = store.GetOrAdd(key, valueFactory: () => expectedValue);
 
         // Assert: Verify that the returned value is the newly added value.
         await Assert.That(actualValue).IsEqualTo(expectedValue).Because("Expected the newly added value to be returned.");

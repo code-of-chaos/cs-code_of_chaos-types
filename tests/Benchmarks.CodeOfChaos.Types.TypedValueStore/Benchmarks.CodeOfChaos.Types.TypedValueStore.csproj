@@ -8,12 +8,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
-      <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.2" />
+        <PackageReference Include="BenchmarkDotNet" Version="0.14.0"/>
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.2"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\CodeOfChaos.Types.TypedValueStore\CodeOfChaos.Types.TypedValueStore.csproj" />
+        <ProjectReference Include="..\..\src\CodeOfChaos.Types.TypedValueStore\CodeOfChaos.Types.TypedValueStore.csproj"/>
     </ItemGroup>
 
 </Project>

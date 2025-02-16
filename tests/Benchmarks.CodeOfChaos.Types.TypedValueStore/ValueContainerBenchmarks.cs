@@ -5,16 +5,15 @@ using BenchmarkDotNet.Attributes;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Benchmarks.CodeOfChaos.Types.TypedValueStore;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 [MemoryDiagnoser]
 public class ValueContainerBenchmarks {
-    private OldValueContainer<int> _oldContainer;
     private NewValueContainer<int> _newContainer;
+    private OldValueContainer<int> _oldContainer;
 
-    [Params(42)] // Parametrize different values for testing
+    [Params(42)]// Parametrize different values for testing
     public int Value { get; set; }
 
     [GlobalSetup]
@@ -24,40 +23,29 @@ public class ValueContainerBenchmarks {
     }
 
     [Benchmark]
-    public bool OldValueContainer_TryGetAsValue_Int() {
-        return _oldContainer.TryGetAsValue(out int _); // Benchmarks OldValueContainer TryGetAsValue
-    }
+    public bool OldValueContainer_TryGetAsValue_Int() => _oldContainer.TryGetAsValue(out int _);// Benchmarks OldValueContainer TryGetAsValue
 
     [Benchmark]
-    public bool NewValueContainer_TryGetAsValue_Int() {
-        return _newContainer.TryGetAsValue(out int _); // Benchmarks NewValueContainer TryGetAsValue
-    }
+    public bool NewValueContainer_TryGetAsValue_Int() => _newContainer.TryGetAsValue(out int _);// Benchmarks NewValueContainer TryGetAsValue
 
     [Benchmark]
     public int OldValueContainer_TryGetAsValue_Int_Value() {
-        _oldContainer.TryGetAsValue(out int output); // Benchmarks NewValueContainer TryGetAsValue
+        _oldContainer.TryGetAsValue(out int output);// Benchmarks NewValueContainer TryGetAsValue
         return output;
     }
 
     [Benchmark]
     public int NewValueContainer_TryGetAsValue_Int_Value() {
-        _newContainer.TryGetAsValue(out int output); // Benchmarks NewValueContainer TryGetAsValue
+        _newContainer.TryGetAsValue(out int output);// Benchmarks NewValueContainer TryGetAsValue
         return output;
     }
 
     [Benchmark]
-    public Type OldValueContainer_GetTypeOfValue()
-    {
-        return _oldContainer.GetTypeOfValue(); // Benchmarks type retrieval for OldValueContainer
-    }
+    public Type OldValueContainer_GetTypeOfValue() => _oldContainer.GetTypeOfValue();// Benchmarks type retrieval for OldValueContainer
 
     [Benchmark]
-    public Type NewValueContainer_GetUnderlyingType()
-    {
-        return _newContainer.UnderlyingType; // Benchmarks type retrieval for NewValueContainer
-    }
+    public Type NewValueContainer_GetUnderlyingType() => _newContainer.UnderlyingType;// Benchmarks type retrieval for NewValueContainer
 }
-
 
 public readonly record struct NewValueContainer<T>(T Value) {
     private readonly Lazy<Type> _lazyUnderlyingType = new(() => typeof(T));

@@ -10,18 +10,17 @@ using Moq;
 using Tests.CodeOfChaos.Types.UnitOfWork.Assets;
 
 namespace Tests.CodeOfChaos.Types.UnitOfWork;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class UnitOfWorkFactoryTests {
     private Mock<IDbContextFactory<MockDbContext>> _dbContextFactory = default!;
+    private UnitOfWorkFactory<MockDbContext> _factory = default!;
+    private Mock<ILogger<UnitOfWorkFactory<MockDbContext>>> _logger = default!;
+    private Mock<IServiceScope> _scope = default!;
+    private Mock<IServiceScopeFactory> _scopeFactory = default!;
     private Mock<IServiceProvider> _serviceProvider = default!;
     private Mock<IServiceScope> _serviceScope = default!;
-    private Mock<ILogger<UnitOfWorkFactory<MockDbContext>>> _logger = default!;
-    private UnitOfWorkFactory<MockDbContext> _factory = default!;
-    private Mock<IServiceScopeFactory> _scopeFactory = default!;
-    private Mock<IServiceScope> _scope = default!;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Setup
@@ -56,9 +55,11 @@ public class UnitOfWorkFactoryTests {
         _serviceProvider
             .Setup(sp => sp.GetService(typeof(IServiceScopeFactory)))
             .Returns(_scopeFactory.Object);
+
         _scopeFactory
             .Setup(sf => sf.CreateScope())
             .Returns(_scope.Object);
+
         _serviceScope
             .Setup(s => s.ServiceProvider)
             .Returns(_serviceProvider.Object);
@@ -78,7 +79,7 @@ public class UnitOfWorkFactoryTests {
         // Assert
         await Assert.That(unitOfWork).IsNotNull();
         await Assert.That(unitOfWork).IsTypeOf<UnitOfWork<MockDbContext>>();
-        _scopeFactory.Verify(sf => sf.CreateScope(), Times.Once);
+        _scopeFactory.Verify(expression: sf => sf.CreateScope(), Times.Once);
     }
 
     [Test]
@@ -87,9 +88,11 @@ public class UnitOfWorkFactoryTests {
         _serviceProvider
             .Setup(sp => sp.GetService(typeof(IServiceScopeFactory)))
             .Returns(_scopeFactory.Object);
+
         _scopeFactory
             .Setup(sf => sf.CreateScope())
             .Returns(_scope.Object);
+
         _scope
             .Setup(s => s.ServiceProvider)
             .Returns(_serviceProvider.Object);
@@ -100,6 +103,6 @@ public class UnitOfWorkFactoryTests {
         // Assert: Validate that UnitOfWork is created and a transaction is attempted
         await Assert.That(unitOfWork).IsNotNull();
         await Assert.That(unitOfWork).IsTypeOf<UnitOfWork<MockDbContext>>();
-        _scopeFactory.Verify(sf => sf.CreateScope(), Times.Once);
+        _scopeFactory.Verify(expression: sf => sf.CreateScope(), Times.Once);
     }
 }

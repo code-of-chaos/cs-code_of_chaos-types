@@ -75,18 +75,18 @@ public class OneTimeDataSeederService(IServiceProvider serviceProvider, ILogger<
             while (seederGroup.SeederTypes.TryDequeue(out Type? seederType)) {
                 AsyncServiceScope scope = serviceProvider.CreateAsyncScope();
                 IServiceProvider scopeProvider = scope.ServiceProvider;
-                
+
                 // Because of checks by the SeederGroup struct we know that the seeder inherits from ISeeder and thus is not null
-                var seeder = (ISeeder) scopeProvider.GetRequiredService(seederType);
-                Task seederTask = seeder.StartAsync(scopeProvider, ct); 
-                
+                var seeder = (ISeeder)scopeProvider.GetRequiredService(seederType);
+                Task seederTask = seeder.StartAsync(scopeProvider, ct);
+
                 // Because our scope has to be gracefully disposed, we add the scope here
                 seederTasks.Add((seederTask, scope));
             }
 
             logger.LogDebug("ExecutionStep {step} : {count} Seeder(s) found, executing...", i++, seederTasks.Count);
             await Task.WhenAll(seederTasks.Select(t => t.Item1));
-            
+
             // Gracefully dispose the scope
             foreach (AsyncServiceScope scope in seederTasks.Select(t => t.Item2)) {
                 await scope.DisposeAsync();

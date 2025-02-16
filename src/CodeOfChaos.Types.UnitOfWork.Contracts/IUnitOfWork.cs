@@ -17,7 +17,7 @@ public interface IUnitOfWork : IAsyncDisposable {
     ValueTask<bool> TryRollbackTransactionAsync(CancellationToken ct = default);
     ValueTask<bool> TryRollbackToSavepointAsync(Guid id, CancellationToken ct = default);
     ValueTask<bool> TryCreateSavepointAsync(Guid id, CancellationToken ct = default);
-    
+
     ValueTask<TDbContext> GetDbContextAsync<TDbContext>(CancellationToken ct = default) where TDbContext : DbContext;
 
     ValueTask<TRepo> GetRepositoryAsync<TRepo>(CancellationToken ct = default) where TRepo : class, IUnitOfWorkRepository;

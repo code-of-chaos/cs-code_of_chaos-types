@@ -4,12 +4,10 @@
 using Microsoft.EntityFrameworkCore;
 
 namespace Tests.CodeOfChaos.Types.UnitOfWork.Assets;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class MockDbContext : DbContext {
-    public MockDbContext() : base() {}
-    public MockDbContext(DbContextOptions<MockDbContext> options) : base(options) { }
-        
+    public MockDbContext() {}
+    public MockDbContext(DbContextOptions<MockDbContext> options) : base(options) {}
 }

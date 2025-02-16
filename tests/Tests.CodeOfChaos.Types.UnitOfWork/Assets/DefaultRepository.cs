@@ -4,10 +4,7 @@
 using CodeOfChaos.Types.UnitOfWork;
 
 namespace Tests.CodeOfChaos.Types.UnitOfWork.Assets;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class DefaultRepository : UnitOfWorkRepository<DefaultDbContext> {
-    
-}
+public class DefaultRepository : UnitOfWorkRepository<DefaultDbContext> {}

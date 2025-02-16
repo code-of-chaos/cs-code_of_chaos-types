@@ -110,23 +110,23 @@ public class TypedValueStore<TKey> :
         .AddOrUpdate(key, new ValueContainer<T>(value), updateValueFactory: (_, _) => new ValueContainer<T>(value));
 
     /// <summary>
-    /// Adds the specified key and value to the store if the key does not already exist. If the key already exists,
-    /// retrieves the existing value associated with the key.
+    ///     Adds the specified key and value to the store if the key does not already exist. If the key already exists,
+    ///     retrieves the existing value associated with the key.
     /// </summary>
     /// <typeparam name="T">
-    /// The type of the value associated with the specified key. Must be a non-nullable type.
+    ///     The type of the value associated with the specified key. Must be a non-nullable type.
     /// </typeparam>
     /// <param name="key">
-    /// The key to be checked or added to the store. Must not be null.
+    ///     The key to be checked or added to the store. Must not be null.
     /// </param>
     /// <param name="valueFactory">
-    /// A function that produces the value to add if the key does not already exist. Must not be null.
+    ///     A function that produces the value to add if the key does not already exist. Must not be null.
     /// </param>
     /// <returns>
-    /// The value associated with the specified key. This will either be the existing value if the key was already in
-    /// the store, or the newly added value obtained from the value factory if the key was not present.
+    ///     The value associated with the specified key. This will either be the existing value if the key was already in
+    ///     the store, or the newly added value obtained from the value factory if the key was not present.
     /// </returns>
-    public T GetOrAdd<T>(TKey key, Func<T> valueFactory) where T : notnull => _storage.GetOrAdd(key, _ => new ValueContainer<T>(valueFactory())).GetAsValue<T>();
+    public T GetOrAdd<T>(TKey key, Func<T> valueFactory) where T : notnull => _storage.GetOrAdd(key, valueFactory: _ => new ValueContainer<T>(valueFactory())).GetAsValue<T>();
 
     /// <summary>
     ///     Attempts to retrieve a value of the specified type associated with the given key.
@@ -149,6 +149,7 @@ public class TypedValueStore<TKey> :
 
     public T GetValue<T>(TKey key) where T : notnull {
         if (_storage.TryGetValue(key, out IValueContainer? container)) return container.GetAsValue<T>();
+
         throw new KeyNotFoundException();
     }
 

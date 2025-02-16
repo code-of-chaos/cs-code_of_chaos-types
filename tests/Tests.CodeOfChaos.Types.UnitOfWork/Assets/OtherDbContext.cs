@@ -4,11 +4,10 @@
 using Microsoft.EntityFrameworkCore;
 
 namespace Tests.CodeOfChaos.Types.UnitOfWork.Assets;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class OtherDbContext : DbContext {
-    public OtherDbContext() : base() {}
+    public OtherDbContext() {}
     public OtherDbContext(DbContextOptions<OtherDbContext> options) : base(options) {}
 }

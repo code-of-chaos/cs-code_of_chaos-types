@@ -62,6 +62,7 @@ public class ServiceCollectionExtensionsTests {
         await Assert.That(hostedService)
             .IsNotNull()
             .And.IsTypeOf<TestSeederService>();
+
         await Assert.That(hasTestSeeder).IsTrue();
         await Assert.That(hasTestSeederType).IsTrue();
         await Assert.That(collectedRemainders).IsFalse();

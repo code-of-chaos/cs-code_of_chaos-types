@@ -7,15 +7,14 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
 
 namespace CodeOfChaos.Types.UnitOfWork;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFactory, IServiceScope serviceScope) : IUnitOfWork where TDbContext : DbContext{
+public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFactory, IServiceScope serviceScope) : IUnitOfWork where TDbContext : DbContext {
     private readonly AsyncLazy<TDbContext> _db = new(async ct => await dbContextFactory.CreateDbContextAsync(ct));
     private IDbContextTransaction? _transaction;
     private ConcurrentDictionary<Type, IUnitOfWorkRepository> AttachedRepositories { get; } = [];
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
@@ -36,16 +35,16 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
 
     public virtual async ValueTask<bool> TryCreateTransactionAsync(CancellationToken ct = default) {
         if (_transaction != null) return false;
-        
+
         TDbContext dbContext = await _db.GetValueAsync(ct);
         if (dbContext.Database.CurrentTransaction != null) {
             // Something went wrong during saving before and the transaction wasn't set by the unit of work
             _transaction = dbContext.Database.CurrentTransaction;
             return true;
         }
-        
+
         _transaction = await dbContext.Database.BeginTransactionAsync(ct);
-        
+
         return true;
     }
 
@@ -64,7 +63,7 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
         if (!_transaction.SupportsSavepoints) return false;
 
         await _transaction.RollbackToSavepointAsync(id.ToString("N"), ct);
-        
+
         return true;
     }
 
@@ -73,7 +72,7 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
         if (!_transaction.SupportsSavepoints) return false;
 
         await _transaction.CreateSavepointAsync(id.ToString("N"), ct);
-        
+
         return true;
     }
 
@@ -86,13 +85,14 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
 
     public virtual async ValueTask<TRepo> GetRepositoryAsync<TRepo>(CancellationToken ct = default) where TRepo : class, IUnitOfWorkRepository {
         if (AttachedRepositories.TryGetValue(typeof(TRepo), out IUnitOfWorkRepository? cachedRepo) && cachedRepo is TRepo castedCachedRepo) return castedCachedRepo;
-        
+
         // Cache miss so we create a new instance
         var repo = serviceScope.ServiceProvider.GetRequiredService<TRepo>();
         if (repo is not UnitOfWorkRepository<TDbContext> castedRepo) throw new InvalidCastException($"Cannot cast repository of type '{repo.GetType()}' to '{typeof(TRepo)}'");
+
         await castedRepo.AttachAsync(this, ct);
-        
-        AttachedRepositories.AddOrUpdate(typeof(TRepo), repo); 
+
+        AttachedRepositories.AddOrUpdate(typeof(TRepo), repo);
         return repo;
     }
 
@@ -102,15 +102,17 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
         if (!AttachedRepositories.IsEmpty) {
             foreach (IUnitOfWorkRepository repository in AttachedRepositories.Values) {
                 if (repository is not UnitOfWorkRepository<TDbContext> castedRepo) continue;
+
                 castedRepo.Detach();
             }
+
             AttachedRepositories.Clear();
         }
-        
+
         serviceScope.Dispose();
-        
+
         await _db.DisposeAsync();
-            
+
         GC.SuppressFinalize(this);
     }
 }

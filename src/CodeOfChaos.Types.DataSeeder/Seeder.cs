@@ -13,8 +13,8 @@ namespace CodeOfChaos.Types;
 ///     a base class for seeding operations with pre-seeding validation logic.
 /// </summary>
 public abstract class Seeder : ISeeder {
-    public bool ShouldSeed { get; private set; } = false;
-    
+    public bool ShouldSeed { get; private set; }
+
     /// <inheritdoc />
     public async Task StartAsync(IServiceProvider serviceProvider, CancellationToken ct = default) {
         ShouldSeed = await ShouldSeedAsync(ct);
