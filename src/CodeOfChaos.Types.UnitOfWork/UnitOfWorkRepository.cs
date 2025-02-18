@@ -20,7 +20,9 @@ public abstract class UnitOfWorkRepository<TDbContext> : IUnitOfWorkRepository
     internal void Detach() => DbContext = null;// Remove the reference to the DbContext
 
     protected TDbContext GetDbContext() => DbContext ?? throw new InvalidOperationException("Repository is not attached to a UnitOfWork.");
+    
     protected DbSet<TModel> GetDbSet<TModel>() where TModel : class => GetDbContext().Set<TModel>();
+    
     protected DbSet<TModel> GetCachedDbSet<TModel>() where TModel : class 
         => (DbSet<TModel>)DbSetCache.GetOrAdd(
             typeof(TModel),
