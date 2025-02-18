@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Concurrent;
 
 namespace CodeOfChaos.Types.UnitOfWork;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -10,6 +11,7 @@ namespace CodeOfChaos.Types.UnitOfWork;
 public abstract class UnitOfWorkRepository<TDbContext> : IUnitOfWorkRepository
     where TDbContext : DbContext {
     private TDbContext? DbContext { get; set; }
+    private ConcurrentDictionary<Type,object> DbSetCache {get;} = new();
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -18,5 +20,11 @@ public abstract class UnitOfWorkRepository<TDbContext> : IUnitOfWorkRepository
     internal void Detach() => DbContext = null;// Remove the reference to the DbContext
 
     protected TDbContext GetDbContext() => DbContext ?? throw new InvalidOperationException("Repository is not attached to a UnitOfWork.");
-    protected DbSet<TModel> GetDbSet<TModel>() where TModel : class => DbContext?.Set<TModel>() ?? throw new InvalidOperationException("Repository is not attached to a UnitOfWork.");
+    protected DbSet<TModel> GetDbSet<TModel>() where TModel : class => GetDbContext().Set<TModel>();
+    protected DbSet<TModel> GetCachedDbSet<TModel>() where TModel : class 
+        => (DbSet<TModel>)DbSetCache.GetOrAdd(
+            typeof(TModel),
+            static (_, dbContext) => dbContext.Set<TModel>(), 
+            GetDbContext()
+        );
 }
