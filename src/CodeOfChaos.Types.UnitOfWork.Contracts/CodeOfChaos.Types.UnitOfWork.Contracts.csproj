@@ -9,7 +9,7 @@
 
         <!-- Main package name -->
         <PackageId>CodeOfChaos.Types.UnitOfWork.Contracts</PackageId>
-        <Version>0.19.0</Version>
+        <Version>0.19.1</Version>
         <Authors>Anna Sas</Authors>
         <Description>A small library housing UnitOfWork typings for EntityFrameworkCore</Description>
         <PackageProjectUrl>https://github.com/code-of-chaos/cs-code_of_chaos-types</PackageProjectUrl>
@@ -24,14 +24,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="../../LICENSE" Pack="true" PackagePath="" Visible="false"/>
-        <None Include="../../README.md" Pack="true" PackagePath="" Visible="false"/>
-        <None Include="../../assets/icon.png" Pack="true" PackagePath="" Visible="false"/>
+        <None Include="../../LICENSE" Pack="true" PackagePath="" Visible="false" />
+        <None Include="../../README.md" Pack="true" PackagePath="" Visible="false" />
+        <None Include="../../assets/icon.png" Pack="true" PackagePath="" Visible="false" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="CodeOfChaos.Extensions.DependencyInjection" Version="0.37.2"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.2"/>
+        <PackageReference Include="CodeOfChaos.Extensions.DependencyInjection" Version="0.39.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.2" />
     </ItemGroup>
 
 </Project>
