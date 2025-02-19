@@ -14,13 +14,13 @@ namespace Tests.CodeOfChaos.Types.UnitOfWork;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class UnitOfWorkTests {
-    private Mock<MockDbContext> _dbContext = default!;
-    private Mock<IDbContextFactory<MockDbContext>> _dbContextFactory = default!;
-    private Mock<IDbContextTransaction> _dbTransaction = default!;
-    private Mock<IServiceProvider> _serviceProvider = default!;
-    private Mock<IServiceScope> _serviceScope = default!;
+    private Mock<MockDbContext> _dbContext = null!;
+    private Mock<IDbContextFactory<MockDbContext>> _dbContextFactory = null!;
+    private Mock<IDbContextTransaction> _dbTransaction = null!;
+    private Mock<IServiceProvider> _serviceProvider = null!;
+    private Mock<IServiceScope> _serviceScope = null!;
 
-    private UnitOfWork<MockDbContext> _unitOfWork = default!;
+    private UnitOfWork<MockDbContext> _unitOfWork = null!;
 
     [Before(Test)]
     public void Setup() {
