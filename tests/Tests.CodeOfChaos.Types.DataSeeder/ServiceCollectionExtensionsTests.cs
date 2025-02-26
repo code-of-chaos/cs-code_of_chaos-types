@@ -13,12 +13,12 @@ namespace Tests.CodeOfChaos.Types.DataSeeder;
 // ---------------------------------------------------------------------------------------------------------------------
 public class ServiceCollectionExtensionsTests {
     [Test]
-    public async Task AddOneTimeDataSeeder_ShouldRegister_OneTimeDataSeederService() {
+    public async Task AddDataSeederService_ShouldRegister_OneTimeDataSeederService() {
         // Arrange
         IServiceCollection services = new ServiceCollection().AddLogging();
 
         // Act
-        services.AddOneTimeDataSeeder<TestSeederService>();
+        services.AddDataSeederService<TestSeederService>();
         var hostedService = services.BuildServiceProvider().GetRequiredService<IHostedService>();
 
         // Assert
@@ -28,12 +28,12 @@ public class ServiceCollectionExtensionsTests {
     }
 
     [Test]
-    public async Task AddOneTimeDataSeeder_ShouldRegisterUsingFactory() {
+    public async Task AddDataSeederService_ShouldRegisterUsingFactory() {
         // Arrange
         IServiceCollection services = new ServiceCollection().AddLogging();
 
         // Act
-        services.AddOneTimeDataSeeder(sp => new TestSeederService(sp));
+        services.AddDataSeederService(sp => new TestSeederService(sp));
         var hostedService = services.BuildServiceProvider().GetRequiredService<IHostedService>();
 
         // Assert
@@ -43,7 +43,7 @@ public class ServiceCollectionExtensionsTests {
     }
 
     [Test]
-    public async Task AddOneTimeDataSeeder_ShouldRegisterUsingAction() {
+    public async Task AddDataSeederService_ShouldRegisterUsingAction() {
         // Arrange
         IServiceCollection services = new ServiceCollection()
                 .AddLogging()
@@ -51,7 +51,7 @@ public class ServiceCollectionExtensionsTests {
             ;
 
         // Act
-        services.AddOneTimeDataSeeder<TestSeederService>(seeder => seeder.AddSeeder<TestSeeder>());
+        services.AddDataSeederService<TestSeederService>(seeder => seeder.AddSeeder<TestSeeder>());
         var hostedService = services.BuildServiceProvider().GetRequiredService<IHostedService>();
         var seeder = hostedService as TestSeederService;
         bool? hasTestSeeder = seeder?.OverloadSeeders.Any(s => s.SeederTypes.Any(s2 => s2 == typeof(TestSeeder)));

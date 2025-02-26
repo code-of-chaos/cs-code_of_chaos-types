@@ -24,7 +24,7 @@ public static class ServiceCollectionExtensions {
     /// <returns>
     ///     The updated <see cref="IServiceCollection" /> with the registered one-time data seeder service.
     /// </returns>
-    public static IServiceCollection AddOneTimeDataSeeder<TDataSeeder>(this IServiceCollection services)
+    public static IServiceCollection AddDataSeederService<TDataSeeder>(this IServiceCollection services)
         where TDataSeeder : class, IDataSeederService, IHostedService
         => services.AddHostedService<TDataSeeder>();
 
@@ -45,7 +45,7 @@ public static class ServiceCollectionExtensions {
     /// <returns>
     ///     The updated <see cref="IServiceCollection" /> with the registered data seeder service.
     /// </returns>
-    public static IServiceCollection AddOneTimeDataSeeder<TDataSeeder>(this IServiceCollection services, Func<IServiceProvider, TDataSeeder> implementationFactory)
+    public static IServiceCollection AddDataSeederService<TDataSeeder>(this IServiceCollection services, Func<IServiceProvider, TDataSeeder> implementationFactory)
         where TDataSeeder : class, IDataSeederService, IHostedService
         => services.AddHostedService(implementationFactory);
 
@@ -57,14 +57,14 @@ public static class ServiceCollectionExtensions {
     ///     The <see cref="IServiceCollection" /> instance to which the data seeder will be added.
     /// </param>
     /// <param name="configureSeeder">
-    ///     An <see cref="Action{T}" /> delegate to configure the <see cref="OneTimeDataSeederService" /> or a custom seeder
+    ///     An <see cref="Action{T}" /> delegate to configure the <see cref="IDataSeederService" /> or a custom seeder
     ///     service.
     /// </param>
     /// <returns>
     ///     The updated <see cref="IServiceCollection" /> with the registered one-time data seeder service.
     /// </returns>
-    public static IServiceCollection AddOneTimeDataSeeder(this IServiceCollection services, Action<OneTimeDataSeederService> configureSeeder)
-        => AddOneTimeDataSeeder<OneTimeDataSeederService>(services, configureSeeder);
+    public static IServiceCollection AddDataSeederService(this IServiceCollection services, Action<IDataSeederService> configureSeeder)
+        => AddDataSeederService<IDataSeederService>(services, configureSeeder);
 
     /// <summary>
     ///     Adds a one-time data seeder to the service collection with the ability to configure it via a provided configuration
@@ -77,7 +77,7 @@ public static class ServiceCollectionExtensions {
     /// <param name="services">The service collection to which the data seeder is added.</param>
     /// <param name="configureSeeder">An action to configure the data seeder when it is created.</param>
     /// <returns>The updated service collection with the data seeder registered.</returns>
-    public static IServiceCollection AddOneTimeDataSeeder<TDataSeeder>(this IServiceCollection services, Action<TDataSeeder> configureSeeder)
+    public static IServiceCollection AddDataSeederService<TDataSeeder>(this IServiceCollection services, Action<TDataSeeder> configureSeeder)
         where TDataSeeder : class, IDataSeederService, IHostedService {
 
         services.TryAddEnumerable(
