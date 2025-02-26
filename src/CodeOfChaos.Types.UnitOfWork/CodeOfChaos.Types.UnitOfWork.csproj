@@ -7,7 +7,7 @@
 
         <!-- Main package name -->
         <PackageId>CodeOfChaos.Types.UnitOfWork</PackageId>
-        <Version>0.21.0</Version>
+        <Version>0.21.1</Version>
         <Authors>Anna Sas</Authors>
         <Description>A small library housing UnitOfWork typings for EntityFrameworkCore</Description>
         <PackageProjectUrl>https://github.com/code-of-chaos/cs-code_of_chaos-types</PackageProjectUrl>
@@ -28,7 +28,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="CodeOfChaos.Extensions.DependencyInjection" Version="0.39.4" />
+        <PackageReference Include="CodeOfChaos.Extensions.DependencyInjection" Version="0.40.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.2" />
     </ItemGroup>
 
