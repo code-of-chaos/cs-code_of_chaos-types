@@ -1,0 +1,133 @@
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using CodeOfChaos.Types.UnitOfWork;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Moq;
+using Tests.CodeOfChaos.Types.UnitOfWork.Assets;
+
+namespace Tests.CodeOfChaos.Types.UnitOfWork;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+public class ReadonlyUnitOfWorkTests {
+    private Mock<MockDbContext> _dbContext = null!;
+    private Mock<IDbContextFactory<MockDbContext>> _dbContextFactory = null!;
+    private Mock<IServiceScope> _serviceScope = null!;
+    private Mock<IServiceProvider> _serviceProvider = null!;
+
+    private ReadonlyUnitOfWork<MockDbContext> _readonlyUnitOfWork = null!;
+
+    [Before(Test)]
+    public void Setup() {
+        _dbContextFactory = new Mock<IDbContextFactory<MockDbContext>>();
+        _serviceScope = new Mock<IServiceScope>();
+        _serviceProvider = new Mock<IServiceProvider>();
+
+        // Mock DbContextOptions with InMemory provider
+        DbContextOptions<MockDbContext> options = new DbContextOptionsBuilder<MockDbContext>()
+            .UseInMemoryDatabase("ReadonlyTestDatabase")
+            .Options;
+
+        _dbContext = new Mock<MockDbContext>(options) { CallBase = true };
+
+        // Mock SetAsReadonly behavior
+        _dbContextFactory
+            .Setup(factory => factory.CreateDbContextAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(_dbContext.Object);
+
+        _serviceScope
+            .Setup(s => s.ServiceProvider)
+            .Returns(_serviceProvider.Object);
+
+        _readonlyUnitOfWork = new ReadonlyUnitOfWork<MockDbContext>(_dbContextFactory.Object, _serviceScope.Object);
+    }
+
+    [After(Test)]
+    public async Task Cleanup() {
+        await _readonlyUnitOfWork.DisposeAsync();
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Tests
+    // -----------------------------------------------------------------------------------------------------------------
+
+    [Test]
+    public async Task LazyDb_ShouldCallSetAsReadonly() {
+        // Arrange
+        var realDbContext = new MockDbContext(new DbContextOptionsBuilder<MockDbContext>()
+            .UseInMemoryDatabase("ReadonlyTestDatabase")
+            .Options);
+
+        _dbContextFactory
+            .Setup(factory => factory.CreateDbContextAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(realDbContext);
+
+        // Act
+        var dbContext = await _readonlyUnitOfWork.GetDbContextAsync<MockDbContext>();
+
+        // Assert
+        _dbContextFactory.Verify(factory => factory.CreateDbContextAsync(It.IsAny<CancellationToken>()), Times.Once);
+        await Assert.That(dbContext.IsReadonly).IsTrue();
+    }
+
+
+    [Test]
+    public async Task SaveChangesAsync_ShouldThrowNotSupportedException() {
+        // Act & Assert
+        await Assert.ThrowsAsync<NotSupportedException>(async () => await _readonlyUnitOfWork.SaveChangesAsync());
+    }
+
+    [Test]
+    public async Task TryCreateTransactionAsync_ShouldThrowNotSupportedException() {
+        // Act & Assert
+        await Assert.ThrowsAsync<NotSupportedException>(async () => await _readonlyUnitOfWork.TryCreateTransactionAsync());
+    }
+
+    [Test]
+    public async Task TryCommitTransactionAsync_ShouldThrowNotSupportedException() {
+        // Act & Assert
+        await Assert.ThrowsAsync<NotSupportedException>(async () => await _readonlyUnitOfWork.TryCommitTransactionAsync());
+    }
+
+    [Test]
+    public async Task TryRollbackTransactionAsync_ShouldThrowNotSupportedException() {
+        // Act & Assert
+        await Assert.ThrowsAsync<NotSupportedException>(async () => await _readonlyUnitOfWork.TryRollbackTransactionAsync());
+    }
+
+    [Test]
+    public async Task TryCreateSavepointAsync_ShouldThrowNotSupportedException() {
+        // Act & Assert
+        await Assert.ThrowsAsync<NotSupportedException>(async () => await _readonlyUnitOfWork.TryCreateSavepointAsync(Guid.NewGuid()));
+    }
+
+    [Test]
+    public async Task TryRollbackToSavepointAsync_ShouldThrowNotSupportedException() {
+        // Act & Assert
+        await Assert.ThrowsAsync<NotSupportedException>(async () => await _readonlyUnitOfWork.TryRollbackToSavepointAsync(Guid.NewGuid()));
+    }
+
+    [Test]
+    public async Task GetRepository_ShouldRetrieveRepositoryFromServiceProvider() {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddDbContextFactory<DefaultDbContext>();
+        services.AddTransient<DefaultRepository, DefaultRepository>();
+        ServiceProvider provider = services.BuildServiceProvider();
+        var factory = new ReadonlyUnitOfWorkFactory<DefaultDbContext>(
+            provider.GetRequiredService<IDbContextFactory<DefaultDbContext>>(),
+            provider
+        );
+        IReadonlyUnitOfWork readonlyUnitOfWork = factory.Create();
+
+        // Act
+        var repository = await readonlyUnitOfWork.GetRepositoryAsync<DefaultRepository>();
+
+        // Assert
+        await Assert.That(repository).IsNotNull();
+    }
+}

@@ -139,7 +139,7 @@ public class OneTimeDataSeederService(IServiceProvider serviceProvider, ILogger<
     /// <inheritdoc />
     public void AddRemainderSeeders(Assembly assembly) {
         Type[] types = CollectTypes(assembly);
-        var errors = new List<Exception>();
+        List<Exception> errors = new List<Exception>();
 
         foreach (Type type in types) {
             if (SeederTypes.Contains(type)) {
@@ -165,7 +165,7 @@ public class OneTimeDataSeederService(IServiceProvider serviceProvider, ILogger<
     public void AddRemainderSeedersAsOneGroup(Assembly assembly) {
         Type[] types = CollectTypes(assembly);
         var group = new SeederGroup();
-        var errors = new List<Exception>();
+        List<Exception> errors = new List<Exception>();
 
         foreach (Type type in types) {
             if (SeederTypes.Contains(type)) {

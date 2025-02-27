@@ -9,7 +9,7 @@
 
         <!-- Main package name -->
         <PackageId>CodeOfChaos.Types.UnitOfWork.Contracts</PackageId>
-        <Version>0.22.0</Version>
+        <Version>0.24.0</Version>
         <Authors>Anna Sas</Authors>
         <Description>A small library housing UnitOfWork typings for EntityFrameworkCore</Description>
         <PackageProjectUrl>https://github.com/code-of-chaos/cs-code_of_chaos-types</PackageProjectUrl>
@@ -30,7 +30,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="CodeOfChaos.Extensions.DependencyInjection" Version="0.41.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.2" />
     </ItemGroup>
 

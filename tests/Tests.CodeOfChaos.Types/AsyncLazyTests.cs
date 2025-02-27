@@ -59,8 +59,8 @@ public class AsyncLazyTests {
     [Test]
     public async Task DisposeAsync_ShouldDisposeIDisposableResource() {
         // Arrange
-        var mockDisposable = new Mock<IDisposable>();
-        var lazy = new AsyncLazy<IDisposable>(_ => Task.FromResult(mockDisposable.Object));
+        Mock<IDisposable> mockDisposable = new Mock<IDisposable>();
+        AsyncLazy<IDisposable> lazy = new AsyncLazy<IDisposable>(_ => Task.FromResult(mockDisposable.Object));
 
         // Act
         await lazy.GetValueAsync();// We need to set the value before disposing, else we just skip disposing most of the time
@@ -73,12 +73,12 @@ public class AsyncLazyTests {
     [Test]
     public async Task DisposeAsync_ShouldDisposeIAsyncDisposableResource() {
         // Arrange
-        var mockAsyncDisposable = new Mock<IAsyncDisposable>();
+        Mock<IAsyncDisposable> mockAsyncDisposable = new Mock<IAsyncDisposable>();
         mockAsyncDisposable
             .Setup(d => d.DisposeAsync())
             .Returns(ValueTask.CompletedTask);// Changed this line
 
-        var lazy = new AsyncLazy<IAsyncDisposable>(_ => Task.FromResult(mockAsyncDisposable.Object));
+        AsyncLazy<IAsyncDisposable> lazy = new AsyncLazy<IAsyncDisposable>(_ => Task.FromResult(mockAsyncDisposable.Object));
 
         // Act
         await lazy.GetValueAsync();// We need to set the value before disposing, else we just skip disposing most of the time
@@ -115,7 +115,7 @@ public class AsyncLazyTests {
         });
 
         const int count = 100;
-        var tasks = new List<Task<int>>();
+        List<Task<int>> tasks = new List<Task<int>>();
 
         // Act
         for (int i = 0; i < count; i++) {
@@ -142,7 +142,7 @@ public class AsyncLazyTests {
 
         const int count = 100;
         int[] results = new int[count];// To store the results of parallel invocations
-        var parallelTasks = new List<Task>();
+        List<Task> parallelTasks = new List<Task>();
 
         // Act
         Parallel.For(0, count, body: i => {
@@ -175,7 +175,7 @@ public class AsyncLazyTests {
             return Interlocked.Increment(ref sharedValue);
         }
 
-        var tasks = new List<Task<int>>();
+        List<Task<int>> tasks = new List<Task<int>>();
 
         // Act
         for (int i = 0; i < count; i++) {

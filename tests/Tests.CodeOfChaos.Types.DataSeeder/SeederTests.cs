@@ -12,7 +12,7 @@ public class SeederTests {
     [Test]
     public async Task StartAsync_ShouldLogAndReturn_WhenShouldSeedReturnsFalse() {
         // Arrange
-        var serviceProviderMock = new Mock<IServiceProvider>();
+        Mock<IServiceProvider> serviceProviderMock = new Mock<IServiceProvider>();
         var seeder = new TestSeeder {
             ShouldSeedResult = false// Simulate ShouldSeedAsync returning false
         };
@@ -27,7 +27,7 @@ public class SeederTests {
     [Test]
     public async Task StartAsync_ShouldCallSeed_WhenShouldSeedReturnsTrue() {
         // Arrange
-        var serviceProviderMock = new Mock<IServiceProvider>();
+        Mock<IServiceProvider> serviceProviderMock = new Mock<IServiceProvider>();
         var seeder = new TestSeeder {
             ShouldSeedResult = true// Simulate ShouldSeedAsync returning true
         };
@@ -42,7 +42,7 @@ public class SeederTests {
     [Test]
     public async Task StartAsync_ShouldRespectCancellationToken() {
         // Arrange
-        var serviceProviderMock = new Mock<IServiceProvider>();
+        Mock<IServiceProvider> serviceProviderMock = new Mock<IServiceProvider>();
         var seeder = new TestSeeder();
         using var cts = new CancellationTokenSource();
         await cts.CancelAsync();// Simulate cancellation

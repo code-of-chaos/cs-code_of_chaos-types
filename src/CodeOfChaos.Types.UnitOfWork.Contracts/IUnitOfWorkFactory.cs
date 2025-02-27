@@ -1,13 +1,12 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using CodeOfChaos.Extensions.DependencyInjection;
-
 namespace CodeOfChaos.Types.UnitOfWork;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IUnitOfWorkFactory : IFactoryService<IUnitOfWork> {
+public interface IUnitOfWorkFactory {
+    IUnitOfWork Create();
     ValueTask<IUnitOfWork> CreateWithTransactionAsync(CancellationToken ct = default);
     ValueTask<IUnitOfWork?> TryCreateWithTransactionAsync(CancellationToken ct = default);
 }

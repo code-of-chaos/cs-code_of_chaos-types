@@ -39,7 +39,7 @@ public class UnitOfWorkTests {
         _dbTransaction = new Mock<IDbContextTransaction>();
 
         // Mock the DatabaseFacade for the DbContext and its transaction behavior
-        var mockDatabaseFacade = new Mock<DatabaseFacade>(_dbContext.Object);
+        Mock<DatabaseFacade> mockDatabaseFacade = new Mock<DatabaseFacade>(_dbContext.Object);
 
         mockDatabaseFacade
             .Setup(db => db.BeginTransactionAsync(It.IsAny<CancellationToken>()))

@@ -11,7 +11,7 @@ namespace CodeOfChaos.Types.UnitOfWork;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFactory, IServiceScope serviceScope) : IUnitOfWork where TDbContext : DbContext {
-    private readonly AsyncLazy<TDbContext> _db = new(async ct => await dbContextFactory.CreateDbContextAsync(ct));
+    protected virtual AsyncLazy<TDbContext> LazyDb { get; } = new(async ct => await dbContextFactory.CreateDbContextAsync(ct));
     private IDbContextTransaction? _transaction;
     private ConcurrentDictionary<Type, IUnitOfWorkRepository> AttachedRepositories { get; } = [];
 
@@ -19,7 +19,7 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     public virtual async ValueTask SaveChangesAsync(CancellationToken ct = default) {
-        DbContext dbContext = await _db.GetValueAsync(ct);
+        DbContext dbContext = await LazyDb.GetValueAsync(ct);
         await dbContext.SaveChangesAsync(ct);
     }
 
@@ -36,7 +36,7 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
     public virtual async ValueTask<bool> TryCreateTransactionAsync(CancellationToken ct = default) {
         if (_transaction != null) return false;
 
-        TDbContext dbContext = await _db.GetValueAsync(ct);
+        TDbContext dbContext = await LazyDb.GetValueAsync(ct);
         if (dbContext.Database.CurrentTransaction != null) {
             // Something went wrong during saving before and the transaction wasn't set by the unit of work
             _transaction = dbContext.Database.CurrentTransaction;
@@ -79,7 +79,7 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
     public virtual async ValueTask<T> GetDbContextAsync<T>(CancellationToken ct = default) where T : DbContext {
         if (typeof(T) != typeof(TDbContext)) throw new NotSupportedException($"DbContext type '{typeof(T)}' is not supported by this UnitOfWork.");
 
-        TDbContext dbContext = await _db.GetValueAsync(ct);
+        TDbContext dbContext = await LazyDb.GetValueAsync(ct);
         return dbContext as T ?? throw new InvalidCastException($"Cannot cast DbContext of type '{dbContext.GetType()}' to '{typeof(T)}'");
     }
 
@@ -93,7 +93,7 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
         return repo;
     }
 
-    public virtual async ValueTask<TRepo> CreateAndAttachRepositoryAsync<TRepo>(CancellationToken ct = default) where TRepo : class, IUnitOfWorkRepository {
+    private async ValueTask<TRepo> CreateAndAttachRepositoryAsync<TRepo>(CancellationToken ct = default) where TRepo : class, IUnitOfWorkRepository {
         var repo = serviceScope.ServiceProvider.GetRequiredService<TRepo>();
         if (repo is not UnitOfWorkRepository<TDbContext> castedRepo) throw new InvalidCastException($"Cannot cast repository of type '{repo.GetType()}' to '{typeof(TRepo)}'");
 
@@ -116,7 +116,7 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
 
         serviceScope.Dispose();
 
-        await _db.DisposeAsync();
+        await LazyDb.DisposeAsync();
 
         GC.SuppressFinalize(this);
     }

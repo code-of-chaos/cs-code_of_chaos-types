@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using CodeOfChaos.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -10,7 +9,6 @@ namespace CodeOfChaos.Types.UnitOfWork;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[InjectableService<IUnitOfWorkFactory>(ServiceLifetime.Scoped)]
 public class UnitOfWorkFactory<TDbContext>(IDbContextFactory<TDbContext> dbContextFactory, IServiceProvider provider, ILogger<UnitOfWorkFactory<TDbContext>> logger) : IUnitOfWorkFactory where TDbContext : DbContext {
     public IUnitOfWork Create() {
         // Each unit of work should have their own scope which they pull their repositories from
@@ -20,7 +18,7 @@ public class UnitOfWorkFactory<TDbContext>(IDbContextFactory<TDbContext> dbConte
         // Because our factory doesn't create the actual dbcontext, yet we are safe, and we can just inject it downwards.
         return new UnitOfWork<TDbContext>(dbContextFactory, scope);
     }
-
+    
     public async ValueTask<IUnitOfWork> CreateWithTransactionAsync(CancellationToken ct = default) {
         IUnitOfWork unitOfWork = Create();
 

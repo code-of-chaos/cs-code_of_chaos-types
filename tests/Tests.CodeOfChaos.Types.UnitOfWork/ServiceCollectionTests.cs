@@ -10,7 +10,7 @@ namespace Tests.CodeOfChaos.Types.UnitOfWork;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class ServiceCollectionTests {
-    private IServiceCollection _services = default!;
+    private IServiceCollection _services = null!;
 
     [Before(Test)]
     public void Setup() {
@@ -69,6 +69,53 @@ public class ServiceCollectionTests {
 
         await Assert.That(otherUnitOfWork).IsNotNull()
             .And.IsTypeOf<UnitOfWork<OtherDbContext>>();
-
     }
+    
+    [Test]
+    public async Task AddReadonlyUnitOfWork_ShouldRegister_ReadonlyUnitOfWorkServices() {
+        // Arrange
+        _services.AddReadonlyUnitOfWork<DefaultDbContext>();
+
+        ServiceProvider provider = _services.BuildServiceProvider();
+
+        // Act
+        var readonlyUnitOfWorkFactory = provider.GetService<IReadonlyUnitOfWorkFactory>();
+        var readonlyUnitOfWork = provider.GetService<IReadonlyUnitOfWork>();
+
+        // Assert
+        await Assert.That(readonlyUnitOfWorkFactory).IsNotNull()
+            .And.IsTypeOf<ReadonlyUnitOfWorkFactory<DefaultDbContext>>();
+
+        await Assert.That(readonlyUnitOfWork).IsNotNull()
+            .And.IsTypeOf<ReadonlyUnitOfWork<DefaultDbContext>>();
+    }
+
+    [Test]
+    public async Task AddReadonlyUnitOfWork_ShouldRegister_ReadonlyUnitOfWorkServices_WithKeyedService() {
+        // Arrange
+        _services.AddReadonlyUnitOfWork<DefaultDbContext>("default");
+        _services.AddReadonlyUnitOfWork<OtherDbContext>("other");
+
+        ServiceProvider provider = _services.BuildServiceProvider();
+
+        // Act
+        var defaultReadonlyUnitOfWorkFactory = provider.GetKeyedService<IReadonlyUnitOfWorkFactory>("default");
+        var defaultReadonlyUnitOfWork = provider.GetKeyedService<IReadonlyUnitOfWork>("default");
+        var otherReadonlyUnitOfWorkFactory = provider.GetKeyedService<IReadonlyUnitOfWorkFactory>("other");
+        var otherReadonlyUnitOfWork = provider.GetKeyedService<IReadonlyUnitOfWork>("other");
+
+        // Assert
+        await Assert.That(defaultReadonlyUnitOfWorkFactory).IsNotNull()
+            .And.IsTypeOf<ReadonlyUnitOfWorkFactory<DefaultDbContext>>();
+
+        await Assert.That(defaultReadonlyUnitOfWork).IsNotNull()
+            .And.IsTypeOf<ReadonlyUnitOfWork<DefaultDbContext>>();
+
+        await Assert.That(otherReadonlyUnitOfWorkFactory).IsNotNull()
+            .And.IsTypeOf<ReadonlyUnitOfWorkFactory<OtherDbContext>>();
+
+        await Assert.That(otherReadonlyUnitOfWork).IsNotNull()
+            .And.IsTypeOf<ReadonlyUnitOfWork<OtherDbContext>>();
+    }
+
 }

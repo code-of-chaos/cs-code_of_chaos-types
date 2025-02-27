@@ -35,10 +35,10 @@ public class UnitOfWorkFactoryTests {
         _scope = new Mock<IServiceScope>();
 
         // Mock DbContext behavior
-        var mockDbContext = new Mock<MockDbContext>();
+        Mock<MockDbContext> mockDbContext = new Mock<MockDbContext>();
 
         // Mock the DatabaseFacade explicitly
-        var mockDatabaseFacade = new Mock<DatabaseFacade>(mockDbContext.Object);
+        Mock<DatabaseFacade> mockDatabaseFacade = new Mock<DatabaseFacade>(mockDbContext.Object);
         mockDatabaseFacade
             .Setup(db => db.CurrentTransaction)
             .Returns(() => null);
