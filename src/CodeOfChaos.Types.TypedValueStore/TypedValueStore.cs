@@ -126,7 +126,13 @@ public class TypedValueStore<TKey> :
     ///     The value associated with the specified key. This will either be the existing value if the key was already in
     ///     the store, or the newly added value obtained from the value factory if the key was not present.
     /// </returns>
-    public T GetOrAdd<T>(TKey key, Func<T> valueFactory) where T : notnull => _storage.GetOrAdd(key, valueFactory: _ => new ValueContainer<T>(valueFactory())).GetAsValue<T>();
+    public T GetOrAdd<T>(TKey key, Func<T> valueFactory) where T : notnull => _storage.
+        GetOrAdd(
+            key,
+            valueFactory: static (_, factory) => new ValueContainer<T>(factory()),
+            valueFactory
+        )
+        .GetAsValue<T>();
 
     /// <summary>
     ///     Attempts to retrieve a value of the specified type associated with the given key.
