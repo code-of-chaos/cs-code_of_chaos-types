@@ -387,7 +387,7 @@ public class TypedValueStoreTest {
 
         // Act
         // Try to get the value using GetOrAdd, if the key exists it should return the existing value
-        string? result = store.GetOrAdd(key, valueFactory: () => newValue);
+        string result = store.GetOrAdd(key, valueFactory: () => newValue);
 
         // Assert
         await Assert.That(result).IsEqualTo(existingValue).Because("Expected the existing value to be returned.");
@@ -463,8 +463,8 @@ public class TypedValueStoreTest {
 
         // Assert
         await Assert.That(result).IsTrue().Because("Expected item to be added successfully.");
-        await Assert.That(resultValue).IsNotNull()
-            .And.IsEqualTo(value).Because("Expected item to be returned successfully.");
+        await Assert.That(resultValue is not null).IsTrue().Because("Expected item to be returned successfully.");
+        await Assert.That(resultValue).IsEqualTo(value).Because("Expected item to be returned successfully.");
     }
 
     [Test]
