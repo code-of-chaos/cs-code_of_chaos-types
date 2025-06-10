@@ -14,13 +14,12 @@ public class ReadonlyUnitOfWork<TDbContext>(
     IServiceScope serviceScope
 ) : UnitOfWork<TDbContext>(dbContextFactory, serviceScope), IReadonlyUnitOfWork
     where TDbContext : DbContext, IReadonlyCapableDbContext {
- 
-    protected override AsyncLazy<TDbContext> LazyDb { get; } = new(async ct => {
-        TDbContext dbContext = await dbContextFactory.CreateDbContextAsync(ct);
+    
+    protected async override ValueTask<TDbContext> GetDbContextAsync(CancellationToken ct) {
+        TDbContext dbContext = await base.GetDbContextAsync(ct);
         dbContext.SetAsReadonly();
         return dbContext;
-    });
-    
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods

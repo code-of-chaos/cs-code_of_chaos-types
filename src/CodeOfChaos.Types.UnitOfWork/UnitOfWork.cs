@@ -11,42 +11,70 @@ namespace CodeOfChaos.Types.UnitOfWork;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFactory, IServiceScope serviceScope) : IUnitOfWork where TDbContext : DbContext {
-    protected virtual AsyncLazy<TDbContext> LazyDb { get; } = new(async ct => await dbContextFactory.CreateDbContextAsync(ct));
+    private TDbContext? _dbContext;
     private IDbContextTransaction? _transaction;
-    private ConcurrentDictionary<Type, IUnitOfWorkRepository> AttachedRepositories { get; } = [];
+    private readonly ConcurrentDictionary<Type, IUnitOfWorkRepository> AttachedRepositories = [];
+    private readonly SemaphoreSlim _initLock = new(1, 1);
+
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
+    protected virtual async ValueTask<TDbContext> GetDbContextAsync(CancellationToken ct) {
+        if (_dbContext != null) return _dbContext;
+
+        await _initLock.WaitAsync(ct);
+        try {
+            // Double-check pattern
+            if (_dbContext != null) return _dbContext;
+
+            _dbContext = await dbContextFactory.CreateDbContextAsync(ct);
+            return _dbContext;
+        }
+        finally {
+            _initLock.Release();
+        }
+    }
+    
+    public virtual async ValueTask<bool> TryCreateTransactionAsync(CancellationToken ct = default) {
+        if (_transaction != null) return false;
+
+        TDbContext dbContext = await GetDbContextAsync(ct);
+        if (dbContext.Database.CurrentTransaction != null) {
+            _transaction = dbContext.Database.CurrentTransaction;
+            return true;
+        }
+
+        await _initLock.WaitAsync(ct);
+        try {
+            _transaction = await dbContext.Database.BeginTransactionAsync(ct);
+            return true;
+        }
+        finally {
+            _initLock.Release();
+        }
+    }
+    
     public virtual async ValueTask SaveChangesAsync(CancellationToken ct = default) {
-        DbContext dbContext = await LazyDb.GetValueAsync(ct);
+        DbContext dbContext = await GetDbContextAsync(ct);
         await dbContext.SaveChangesAsync(ct);
     }
 
     public virtual async ValueTask<bool> TryCommitTransactionAsync(CancellationToken ct = default) {
         if (_transaction == null) return false;
 
-        await _transaction.CommitAsync(ct);
-        _transaction.Dispose();
-        _transaction = null;
-
-        return true;
-    }
-
-    public virtual async ValueTask<bool> TryCreateTransactionAsync(CancellationToken ct = default) {
-        if (_transaction != null) return false;
-
-        TDbContext dbContext = await LazyDb.GetValueAsync(ct);
-        if (dbContext.Database.CurrentTransaction != null) {
-            // Something went wrong during saving before and the transaction wasn't set by the unit of work
-            _transaction = dbContext.Database.CurrentTransaction;
+        await _initLock.WaitAsync(ct);
+        try {
+            await _transaction.CommitAsync(ct);
+            await _transaction.DisposeAsync();
+            _transaction = null;
             return true;
         }
-
-        _transaction = await dbContext.Database.BeginTransactionAsync(ct);
-
-        return true;
+        finally {
+            _initLock.Release();
+        }
     }
+
 
     public virtual async ValueTask<bool> TryRollbackTransactionAsync(CancellationToken ct = default) {
         if (_transaction == null) return false;
@@ -79,7 +107,7 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
     public virtual async ValueTask<T> GetDbContextAsync<T>(CancellationToken ct = default) where T : DbContext {
         if (typeof(T) != typeof(TDbContext)) throw new NotSupportedException($"DbContext type '{typeof(T)}' is not supported by this UnitOfWork.");
 
-        TDbContext dbContext = await LazyDb.GetValueAsync(ct);
+        TDbContext dbContext = await GetDbContextAsync(ct);
         return dbContext as T ?? throw new InvalidCastException($"Cannot cast DbContext of type '{dbContext.GetType()}' to '{typeof(T)}'");
     }
 
@@ -88,7 +116,7 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
 
         // Cache miss so we create a new instance
         var repo = await CreateAndAttachRepositoryAsync<TRepo>(ct);
-        
+
         AttachedRepositories.AddOrUpdate(typeof(TRepo), repo);
         return repo;
     }
@@ -102,22 +130,38 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
     }
 
     public virtual async ValueTask DisposeAsync() {
-        if (_transaction != null) await TryRollbackTransactionAsync();
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        if (_initLock == null) {
+            GC.SuppressFinalize(this);
+            return;
+        }
 
-        if (!AttachedRepositories.IsEmpty) {
+        await _initLock.WaitAsync();
+        try {
+            if (_transaction != null) {
+                await TryRollbackTransactionAsync();
+            }
+
             foreach (IUnitOfWorkRepository repository in AttachedRepositories.Values) {
-                if (repository is not UnitOfWorkRepository<TDbContext> castedRepo) continue;
-
-                castedRepo.Detach();
+                if (repository is UnitOfWorkRepository<TDbContext> castedRepo) {
+                    castedRepo.Detach();
+                }
             }
 
             AttachedRepositories.Clear();
+
+            if (_dbContext != null) {
+                await _dbContext.DisposeAsync();
+                _dbContext = null;
+            }
+
+            serviceScope.Dispose();
         }
-
-        serviceScope.Dispose();
-
-        await LazyDb.DisposeAsync();
-
-        GC.SuppressFinalize(this);
+        finally {
+            _initLock.Release();
+            _initLock.Dispose();
+            GC.SuppressFinalize(this);
+        }
     }
+
 }

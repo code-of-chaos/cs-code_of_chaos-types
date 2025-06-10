@@ -39,7 +39,7 @@ public class UnitOfWorkTests {
         _dbTransaction = new Mock<IDbContextTransaction>();
 
         // Mock the DatabaseFacade for the DbContext and its transaction behavior
-        Mock<DatabaseFacade> mockDatabaseFacade = new Mock<DatabaseFacade>(_dbContext.Object);
+        var mockDatabaseFacade = new Mock<DatabaseFacade>(_dbContext.Object);
 
         mockDatabaseFacade
             .Setup(db => db.BeginTransactionAsync(It.IsAny<CancellationToken>()))
@@ -67,11 +67,6 @@ public class UnitOfWorkTests {
 
         _unitOfWork = new UnitOfWork<MockDbContext>(_dbContextFactory.Object, _serviceScope.Object);
 
-    }
-
-    [After(Test)]
-    public async Task Cleanup() {
-        await _unitOfWork.DisposeAsync();
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -116,7 +111,7 @@ public class UnitOfWorkTests {
         // Assert
         await Assert.That(result).IsTrue();
         _dbTransaction.Verify(expression: transaction => transaction.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
-        _dbTransaction.Verify(expression: transaction => transaction.Dispose(), Times.Once);
+        _dbTransaction.Verify(expression: transaction => transaction.DisposeAsync(), Times.Once);
     }
 
     [Test]
