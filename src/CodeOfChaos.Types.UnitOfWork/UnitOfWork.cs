@@ -117,7 +117,11 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
         // Cache miss so we create a new instance
         var repo = await CreateAndAttachRepositoryAsync<TRepo>(ct);
 
-        AttachedRepositories.AddOrUpdate(typeof(TRepo), repo);
+        AttachedRepositories.AddOrUpdate(
+            typeof(TRepo),
+            repo, 
+            (_, _) => repo
+        );
         return repo;
     }
 
