@@ -9,7 +9,7 @@
 
         <!-- Main package name -->
         <PackageId>CodeOfChaos.Types.UnitOfWork.Contracts</PackageId>
-        <Version>0.28.0</Version>
+        <Version>0.28.1</Version>
         <Authors>Anna Sas</Authors>
         <Description>A small library housing UnitOfWork typings for EntityFrameworkCore</Description>
         <PackageProjectUrl>https://github.com/code-of-chaos/cs-code_of_chaos-types</PackageProjectUrl>
