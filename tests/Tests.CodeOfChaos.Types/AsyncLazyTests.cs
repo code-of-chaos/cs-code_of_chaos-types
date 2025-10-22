@@ -141,12 +141,12 @@ public class AsyncLazyTests {
         });
 
         const int count = 100;
-        int[] results = new int[count];// To store the results of parallel invocations
-        List<Task> parallelTasks = new List<Task>();
+        int[] results = new int[count];
+        var parallelTasks = new Task[count];
 
         // Act
-        Parallel.For(0, count, body: i => {
-            parallelTasks.Add(Task.Run(async () => results[i] = await lazy.GetValueAsync()));
+        Parallel.For(0, count, i => {
+            parallelTasks[i] = Task.Run(async () => results[i] = await lazy.GetValueAsync());
         });
 
         await Task.WhenAll(parallelTasks);
