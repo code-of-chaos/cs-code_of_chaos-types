@@ -28,6 +28,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.CodeOfChaos.Types.Uni
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeOfChaos.Types.UnitOfWork.Contracts", "src\CodeOfChaos.Types.UnitOfWork.Contracts\CodeOfChaos.Types.UnitOfWork.Contracts.csproj", "{9B998187-74B9-4B75-83DD-76CF822BAFB3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "github", "github", "{A10E5DC3-95E8-414A-AE51-673A5148821C}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\onPullRequest-TestDotnet.yml = .github\workflows\onPullRequest-TestDotnet.yml
+		.github\workflows\release.yml = .github\workflows\release.yml
+		.github\workflows\workflow-todo.yml = .github\workflows\workflow-todo.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -91,5 +98,6 @@ Global
 		{938BE8FB-AAB5-4D15-82FC-DFABC83DB2F1} = {197E72AD-DEAB-4350-AFC3-A3BB38720BF5}
 		{58C5DC7B-083F-42B0-AE5E-A7F662C0EF39} = {8DD280D4-1E14-4D5E-AFE6-58DD8F079DCC}
 		{9B998187-74B9-4B75-83DD-76CF822BAFB3} = {197E72AD-DEAB-4350-AFC3-A3BB38720BF5}
+		{A10E5DC3-95E8-414A-AE51-673A5148821C} = {AF1A203C-6EF1-440E-BB3C-55B1DBFE9C19}
 	EndGlobalSection
 EndGlobal
