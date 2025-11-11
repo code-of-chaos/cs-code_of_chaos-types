@@ -8,7 +8,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{197E72AD-DEA
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{8DD280D4-1E14-4D5E-AFE6-58DD8F079DCC}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{AF1A203C-6EF1-440E-BB3C-55B1DBFE9C19}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".dev-tools", ".dev-tools", "{AF1A203C-6EF1-440E-BB3C-55B1DBFE9C19}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tools.CodeOfChaos.Types", "src\Tools.CodeOfChaos.Types\Tools.CodeOfChaos.Types.csproj", "{ADEADD97-0AFA-4D9E-970B-9FFB932949B3}"
 EndProject
