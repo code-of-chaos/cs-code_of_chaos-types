@@ -1,0 +1,26 @@
+<Solution>
+  <Folder Name="/.dev-tools/">
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <Project Path="src/Tools.CodeOfChaos.Types/Tools.CodeOfChaos.Types.csproj" />
+  </Folder>
+  <Folder Name="/.dev-tools/github/">
+    <File Path=".github/workflows/onPullRequest-TestDotnet.yml" />
+    <File Path=".github/workflows/release.yml" />
+    <File Path=".github/workflows/workflow-todo.yml" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/CodeOfChaos.Types.DataSeeder/CodeOfChaos.Types.DataSeeder.csproj" />
+    <Project Path="src/CodeOfChaos.Types.TypedValueStore/CodeOfChaos.Types.TypedValueStore.csproj" />
+    <Project Path="src/CodeOfChaos.Types.UnitOfWork.Contracts/CodeOfChaos.Types.UnitOfWork.Contracts.csproj" />
+    <Project Path="src/CodeOfChaos.Types.UnitOfWork/CodeOfChaos.Types.UnitOfWork.csproj" />
+    <Project Path="src/CodeOfChaos.Types/CodeOfChaos.Types.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Benchmarks.CodeOfChaos.Types.TypedValueStore/Benchmarks.CodeOfChaos.Types.TypedValueStore.csproj" />
+    <Project Path="tests/Tests.CodeOfChaos.Types.DataSeeder/Tests.CodeOfChaos.Types.DataSeeder.csproj" />
+    <Project Path="tests/Tests.CodeOfChaos.Types.TypedValueStore/Tests.CodeOfChaos.Types.TypedValueStore.csproj" />
+    <Project Path="tests/Tests.CodeOfChaos.Types.UnitOfWork/Tests.CodeOfChaos.Types.UnitOfWork.csproj" />
+    <Project Path="tests/Tests.CodeOfChaos.Types/Tests.CodeOfChaos.Types.csproj" />
+  </Folder>
+</Solution>
