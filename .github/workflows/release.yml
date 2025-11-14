@@ -10,33 +10,23 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout repository
-              uses: actions/checkout@v3
+              uses: actions/checkout@v5
 
             - name: Setup .NET
-              uses: actions/setup-dotnet@v3
+              uses: actions/setup-dotnet@v5
               with:
-                  dotnet-version: '9.x'
+                  dotnet-version:  |
+                      9.x
+                      10.x
 
             - name: Restore dependencies
-              run: dotnet restore CodeOfChaos.Types.sln
+              run: dotnet restore CodeOfChaos.Types.slnx
 
             - name: Build
-              run: dotnet build CodeOfChaos.Types.sln --configuration Release --no-restore
-            
-            # Ensure that the tests must pass 
-            # The job will fail automatically if any test fails because `dotnet test` exits with a non-zero code
-            - name: Run tests - Extensions
-              run: dotnet run -c Release --no-restore --no-build
-              working-directory: "tests/Tests.CodeOfChaos.Types"
-            - name: Run tests - Extensions
-              run: dotnet run -c Release --no-restore --no-build
-              working-directory: "tests/Tests.CodeOfChaos.Types.TypedValueStore"
-            - name: Run tests - Extensions
-              run: dotnet run -c Release --no-restore --no-build
-              working-directory: "tests/Tests.CodeOfChaos.Types.DataSeeder"
-            - name: Run tests - CodeOfChaos.Types.UnitOfWork
-              run: dotnet run -c Release --no-restore --no-build
-              working-directory: "tests/Tests.CodeOfChaos.Types.UnitOfWork"
+              run: dotnet build CodeOfChaos.Types.slnx --configuration Release --no-restore
+              
+            - name: Run tests
+              run: dotnet test --solution CodeOfChaos.Types.slnx --configuration Release --no-restore --no-build
 
             - name: Publish to NuGet
               env:
