@@ -4,7 +4,6 @@
 using CodeOfChaos.Types.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Moq;
 using Tests.CodeOfChaos.Types.UnitOfWork.Assets;
 
@@ -123,7 +122,7 @@ public class ReadonlyUnitOfWorkTests {
             provider.GetRequiredService<IDbContextFactory<DefaultDbContext>>(),
             provider
         );
-        IReadonlyUnitOfWork readonlyUnitOfWork = factory.Create();
+        IReadonlyUnitOfWork<DefaultDbContext> readonlyUnitOfWork = factory.Create();
 
         // Act
         var repository = await readonlyUnitOfWork.GetRepositoryAsync<DefaultRepository>();

@@ -14,13 +14,13 @@ namespace Tests.CodeOfChaos.Types.UnitOfWork;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class UnitOfWorkFactoryTests {
-    private Mock<IDbContextFactory<MockDbContext>> _dbContextFactory = default!;
-    private UnitOfWorkFactory<MockDbContext> _factory = default!;
-    private Mock<ILogger<UnitOfWorkFactory<MockDbContext>>> _logger = default!;
-    private Mock<IServiceScope> _scope = default!;
-    private Mock<IServiceScopeFactory> _scopeFactory = default!;
-    private Mock<IServiceProvider> _serviceProvider = default!;
-    private Mock<IServiceScope> _serviceScope = default!;
+    private Mock<IDbContextFactory<MockDbContext>> _dbContextFactory = null!;
+    private UnitOfWorkFactory<MockDbContext> _factory = null!;
+    private Mock<ILogger<UnitOfWorkFactory<MockDbContext>>> _logger = null!;
+    private Mock<IServiceScope> _scope = null!;
+    private Mock<IServiceScopeFactory> _scopeFactory = null!;
+    private Mock<IServiceProvider> _serviceProvider = null!;
+    private Mock<IServiceScope> _serviceScope = null!;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Setup
@@ -74,7 +74,7 @@ public class UnitOfWorkFactoryTests {
     [Test]
     public async Task Create_ShouldReturnUnitOfWork() {
         // Act
-        IUnitOfWork unitOfWork = _factory.Create();
+        IUnitOfWork<MockDbContext> unitOfWork = _factory.Create();
 
         // Assert
         await Assert.That(unitOfWork).IsNotNull();
@@ -98,7 +98,7 @@ public class UnitOfWorkFactoryTests {
             .Returns(_serviceProvider.Object);
 
         // Act
-        IUnitOfWork unitOfWork = await _factory.CreateWithTransactionAsync();
+        IUnitOfWork<MockDbContext> unitOfWork = await _factory.CreateWithTransactionAsync();
 
         // Assert: Validate that UnitOfWork is created and a transaction is attempted
         await Assert.That(unitOfWork).IsNotNull();

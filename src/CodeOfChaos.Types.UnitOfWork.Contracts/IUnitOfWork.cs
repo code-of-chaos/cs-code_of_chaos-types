@@ -7,7 +7,7 @@ namespace CodeOfChaos.Types.UnitOfWork;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IUnitOfWork : IAsyncDisposable {
+public interface IUnitOfWork<TDbContext> : IAsyncDisposable where TDbContext : DbContext {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // ----------------------------------------------------------------------------------------------------------------
@@ -29,8 +29,8 @@ public interface IUnitOfWork : IAsyncDisposable {
     bool TryRollbackToSavepoint(Guid id);
     ValueTask<bool> TryRollbackToSavepointAsync(Guid id, CancellationToken ct = default);
     
-    TDbContext GetDbContext<TDbContext>() where TDbContext : DbContext;
-    ValueTask<TDbContext> GetDbContextAsync<TDbContext>(CancellationToken ct = default) where TDbContext : DbContext;
+    TDbContext GetDbContext();
+    ValueTask<TDbContext> GetDbContextAsync(CancellationToken ct = default);
 
     TRepo GetRepository<TRepo>() where TRepo : class, IUnitOfWorkRepository;
     ValueTask<TRepo> GetRepositoryAsync<TRepo>(CancellationToken ct = default) where TRepo : class, IUnitOfWorkRepository;

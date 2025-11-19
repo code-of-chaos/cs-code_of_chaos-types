@@ -1,11 +1,13 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using Microsoft.EntityFrameworkCore;
+
 namespace CodeOfChaos.Types.UnitOfWork;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IReadonlyUnitOfWorkFactory {
-    IReadonlyUnitOfWork Create();
+public interface IReadonlyUnitOfWorkFactory<TDbContext> where TDbContext : DbContext {
+    IReadonlyUnitOfWork<TDbContext> Create();
 }

@@ -10,8 +10,8 @@ namespace CodeOfChaos.Types.UnitOfWork;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class UnitOfWorkFactory<TDbContext>(IDbContextFactory<TDbContext> dbContextFactory, IServiceProvider provider, ILogger<UnitOfWorkFactory<TDbContext>> logger) : IUnitOfWorkFactory where TDbContext : DbContext {
-    public IUnitOfWork Create() {
+public class UnitOfWorkFactory<TDbContext>(IDbContextFactory<TDbContext> dbContextFactory, IServiceProvider provider, ILogger<UnitOfWorkFactory<TDbContext>> logger) : IUnitOfWorkFactory<TDbContext> where TDbContext : DbContext {
+    public IUnitOfWork<TDbContext> Create() {
         // Each unit of work should have their own scope which they pull their repositories from
         //      This, if the factory is used correctly, should enforce correct usage and limit dbcontext concurrency issues.
         AsyncServiceScope scope = provider.CreateAsyncScope();
@@ -20,8 +20,8 @@ public class UnitOfWorkFactory<TDbContext>(IDbContextFactory<TDbContext> dbConte
         return new UnitOfWork<TDbContext>(dbContextFactory, scope);
     }
 
-    public IUnitOfWork CreateWithTransaction() {
-        IUnitOfWork unitOfWork = Create();
+    public IUnitOfWork<TDbContext> CreateWithTransaction() {
+        IUnitOfWork<TDbContext> unitOfWork = Create();
 
         // ReSharper disable once InvertIf
         if (!unitOfWork.TryCreateTransaction()) {
@@ -32,8 +32,8 @@ public class UnitOfWorkFactory<TDbContext>(IDbContextFactory<TDbContext> dbConte
         return unitOfWork;
     }
 
-    public async ValueTask<IUnitOfWork> CreateWithTransactionAsync(CancellationToken ct = default) {
-        IUnitOfWork unitOfWork = Create();
+    public async ValueTask<IUnitOfWork<TDbContext>> CreateWithTransactionAsync(CancellationToken ct = default) {
+        IUnitOfWork<TDbContext> unitOfWork = Create();
 
         // ReSharper disable once InvertIf
         if (!await unitOfWork.TryCreateTransactionAsync(ct)) {
@@ -44,7 +44,7 @@ public class UnitOfWorkFactory<TDbContext>(IDbContextFactory<TDbContext> dbConte
         return unitOfWork;
     }
     
-    public bool TryCreateWithTransaction([NotNullWhen(true)] out IUnitOfWork? unitOfWork) {
+    public bool TryCreateWithTransaction([NotNullWhen(true)] out IUnitOfWork<TDbContext>? unitOfWork) {
         unitOfWork = Create();
 
         // ReSharper disable once InvertIf
@@ -55,8 +55,8 @@ public class UnitOfWorkFactory<TDbContext>(IDbContextFactory<TDbContext> dbConte
         return true;
     }
 
-    public async ValueTask<IUnitOfWork?> TryCreateWithTransactionAsync(CancellationToken ct = default) {
-        IUnitOfWork unitOfWork = Create();
+    public async ValueTask<IUnitOfWork<TDbContext>?> TryCreateWithTransactionAsync(CancellationToken ct = default) {
+        IUnitOfWork<TDbContext> unitOfWork = Create();
 
         // ReSharper disable once InvertIf
         if (!await unitOfWork.TryCreateTransactionAsync(ct)) {

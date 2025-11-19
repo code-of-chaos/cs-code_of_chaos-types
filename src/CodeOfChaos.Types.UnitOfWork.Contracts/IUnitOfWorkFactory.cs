@@ -1,18 +1,19 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
 
 namespace CodeOfChaos.Types.UnitOfWork;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IUnitOfWorkFactory {
-    IUnitOfWork Create();
+public interface IUnitOfWorkFactory<TDbContext> where TDbContext : DbContext {
+    IUnitOfWork<TDbContext> Create();
     
-    IUnitOfWork CreateWithTransaction();
-    ValueTask<IUnitOfWork> CreateWithTransactionAsync(CancellationToken ct = default);
+    IUnitOfWork<TDbContext> CreateWithTransaction();
+    ValueTask<IUnitOfWork<TDbContext>> CreateWithTransactionAsync(CancellationToken ct = default);
     
-    bool TryCreateWithTransaction([NotNullWhen(true)] out IUnitOfWork? unitOfWork);
-    ValueTask<IUnitOfWork?> TryCreateWithTransactionAsync(CancellationToken ct = default);
+    bool TryCreateWithTransaction([NotNullWhen(true)] out IUnitOfWork<TDbContext>? unitOfWork);
+    ValueTask<IUnitOfWork<TDbContext>?> TryCreateWithTransactionAsync(CancellationToken ct = default);
 }

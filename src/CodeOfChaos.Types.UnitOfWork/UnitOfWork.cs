@@ -11,7 +11,7 @@ namespace CodeOfChaos.Types.UnitOfWork;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFactory, AsyncServiceScope serviceScope) : IUnitOfWork where TDbContext : DbContext {
+public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFactory, AsyncServiceScope serviceScope) : IUnitOfWork<TDbContext> where TDbContext : DbContext {
     private TDbContext? _dbContext;
     private IDbContextTransaction? _transaction;
     private readonly ConcurrentDictionary<Type, IUnitOfWorkRepository> AttachedRepositories = [];
@@ -25,7 +25,7 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    protected virtual async ValueTask<TDbContext> GetDbContextAsync(CancellationToken ct) {
+    public virtual async ValueTask<TDbContext> GetDbContextAsync(CancellationToken ct) {
         if (_dbContext != null) return _dbContext;
 
         await _initLockAsync.WaitAsync(ct);
@@ -41,7 +41,7 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
         }
     }
 
-    protected virtual TDbContext GetDbContext() => _lazyDb.Value;
+    public virtual TDbContext GetDbContext() => _lazyDb.Value;
 
     public virtual bool TryCreateTransaction() {
         if (_transaction != null) return false;

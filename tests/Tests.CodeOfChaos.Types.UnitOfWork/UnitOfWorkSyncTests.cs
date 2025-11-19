@@ -202,7 +202,7 @@ public class UnitOfWorkSyncTests {
         services.AddUnitOfWork<DefaultDbContext>();
         services.AddTransient<DefaultRepository>();
         ServiceProvider provider = services.BuildServiceProvider();
-        IUnitOfWork unitOfWork = provider.GetRequiredService<IUnitOfWorkFactory>().Create();
+        IUnitOfWork<DefaultDbContext> unitOfWork = provider.GetRequiredService<IUnitOfWorkFactory<DefaultDbContext>>().Create();
 
         // Act
         var repository = unitOfWork.GetRepository<DefaultRepository>();

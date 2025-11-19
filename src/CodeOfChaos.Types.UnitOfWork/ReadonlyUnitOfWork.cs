@@ -12,16 +12,16 @@ namespace CodeOfChaos.Types.UnitOfWork;
 public class ReadonlyUnitOfWork<TDbContext>(
     IDbContextFactory<TDbContext> dbContextFactory,
     AsyncServiceScope serviceScope
-) : UnitOfWork<TDbContext>(dbContextFactory, serviceScope), IReadonlyUnitOfWork
+) : UnitOfWork<TDbContext>(dbContextFactory, serviceScope), IReadonlyUnitOfWork<TDbContext>
     where TDbContext : DbContext, IReadonlyCapableDbContext {
     
-    protected async override ValueTask<TDbContext> GetDbContextAsync(CancellationToken ct) {
+    public async override ValueTask<TDbContext> GetDbContextAsync(CancellationToken ct) {
         TDbContext dbContext = await base.GetDbContextAsync(ct);
         dbContext.SetAsReadonly();
         return dbContext;
     }
 
-    protected override TDbContext GetDbContext() {
+    public override TDbContext GetDbContext() {
         TDbContext dbContext = base.GetDbContext();
         dbContext.SetAsReadonly();
         return dbContext;

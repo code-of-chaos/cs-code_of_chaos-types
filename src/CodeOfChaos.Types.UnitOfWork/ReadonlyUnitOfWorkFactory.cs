@@ -12,9 +12,9 @@ namespace CodeOfChaos.Types.UnitOfWork;
 public class ReadonlyUnitOfWorkFactory<TDbContext>(
     IDbContextFactory<TDbContext> dbContextFactory,
     IServiceProvider provider
-) : IReadonlyUnitOfWorkFactory where TDbContext : DbContext, IReadonlyCapableDbContext {
+) : IReadonlyUnitOfWorkFactory<TDbContext> where TDbContext : DbContext, IReadonlyCapableDbContext {
 
-    public IReadonlyUnitOfWork Create() {
+    public IReadonlyUnitOfWork<TDbContext> Create() {
         AsyncServiceScope scope = provider.CreateAsyncScope();
         return new ReadonlyUnitOfWork<TDbContext>(dbContextFactory, scope);
     }
