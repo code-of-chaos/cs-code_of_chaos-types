@@ -54,8 +54,8 @@ public class ServiceCollectionTests {
         // Act
         var defaultUnitOfWorkFactory = provider.GetKeyedService<IUnitOfWorkFactory<DefaultDbContext>>("default");
         var defaultUnitOfWork = provider.GetKeyedService<IUnitOfWork<DefaultDbContext>>("default");
-        var otherUnitOfWorkFactory = provider.GetKeyedService<IUnitOfWorkFactory<DefaultDbContext>>("other");
-        var otherUnitOfWork = provider.GetKeyedService<IUnitOfWork<DefaultDbContext>>("other");
+        var otherUnitOfWorkFactory = provider.GetKeyedService<IUnitOfWorkFactory<OtherDbContext>>("other");
+        var otherUnitOfWork = provider.GetKeyedService<IUnitOfWork<OtherDbContext>>("other");
 
         // Assert
         await Assert.That(defaultUnitOfWorkFactory).IsNotNull()
@@ -101,8 +101,8 @@ public class ServiceCollectionTests {
         // Act
         var defaultReadonlyUnitOfWorkFactory = provider.GetKeyedService<IReadonlyUnitOfWorkFactory<DefaultDbContext>>("default");
         var defaultReadonlyUnitOfWork = provider.GetKeyedService<IReadonlyUnitOfWork<DefaultDbContext>>("default");
-        var otherReadonlyUnitOfWorkFactory = provider.GetKeyedService<IReadonlyUnitOfWorkFactory<DefaultDbContext>>("other");
-        var otherReadonlyUnitOfWork = provider.GetKeyedService<IReadonlyUnitOfWork<DefaultDbContext>>("other");
+        var otherReadonlyUnitOfWorkFactory = provider.GetKeyedService<IReadonlyUnitOfWorkFactory<OtherDbContext>>("other");
+        var otherReadonlyUnitOfWork = provider.GetKeyedService<IReadonlyUnitOfWork<OtherDbContext>>("other");
 
         // Assert
         await Assert.That(defaultReadonlyUnitOfWorkFactory).IsNotNull()
