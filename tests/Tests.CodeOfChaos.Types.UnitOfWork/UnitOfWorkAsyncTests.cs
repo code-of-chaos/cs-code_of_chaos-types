@@ -13,7 +13,7 @@ namespace Tests.CodeOfChaos.Types.UnitOfWork;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class UnitOfWorkTests {
+public class UnitOfWorkAsyncTests {
     private Mock<MockDbContext> _dbContext = null!;
     private Mock<IDbContextFactory<MockDbContext>> _dbContextFactory = null!;
     private Mock<IDbContextTransaction> _dbTransaction = null!;
@@ -66,7 +66,12 @@ public class UnitOfWorkTests {
             .Returns(_serviceProvider.Object);
 
         _unitOfWork = new UnitOfWork<MockDbContext>(_dbContextFactory.Object, _serviceScope.Object);
+    }
 
+    [After(Test)]
+    public async Task CleanupAsync() {
+        if (_unitOfWork.IsDisposed) return;
+        await _unitOfWork.DisposeAsync();
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -187,7 +192,7 @@ public class UnitOfWorkTests {
     }
 
     [Test]
-    public async Task GetRepository_ShouldRetrieveRepositoryFromServiceProvider() {
+    public async Task GetRepositoryAsync_ShouldRetrieveRepositoryFromServiceProvider() {
         // Arrange
         var services = new ServiceCollection();
         services.AddLogging();

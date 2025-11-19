@@ -20,6 +20,8 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
     private readonly Lock _transactionLock = new();
     private readonly Lazy<TDbContext> _lazyDb = new(dbContextFactory.CreateDbContext, LazyThreadSafetyMode.ExecutionAndPublication);
     
+    internal bool IsDisposed { get; private set; }
+    
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
@@ -228,6 +230,7 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (_initLockAsync == null) {
             GC.SuppressFinalize(this);
+            IsDisposed = true;
             return;
         }
 
@@ -257,6 +260,7 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
             _initLockAsync.Dispose();
             GC.SuppressFinalize(this);
         }
+        IsDisposed = true;
     }
 
 }

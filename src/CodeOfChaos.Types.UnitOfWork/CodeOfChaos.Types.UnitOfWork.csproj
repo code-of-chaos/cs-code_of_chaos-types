@@ -28,6 +28,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <InternalsVisibleTo Include="Tests.CodeOfChaos.Types.UnitOfWork" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Microsoft.EntityFrameworkCore" />
     </ItemGroup>
 
