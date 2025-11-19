@@ -16,6 +16,8 @@ public abstract class UnitOfWorkRepository<TDbContext> : IUnitOfWorkRepository
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
+    
+    internal void Attach(IUnitOfWork unitOfWork) => DbContext = unitOfWork.GetDbContext<TDbContext>();
     internal async ValueTask AttachAsync(IUnitOfWork unitOfWork, CancellationToken ct = default) => DbContext = await unitOfWork.GetDbContextAsync<TDbContext>(ct);
     internal void Detach() => DbContext = null;// Remove the reference to the DbContext
 

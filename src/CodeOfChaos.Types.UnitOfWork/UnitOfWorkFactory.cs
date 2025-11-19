@@ -4,6 +4,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics.CodeAnalysis;
 
 namespace CodeOfChaos.Types.UnitOfWork;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -18,7 +19,19 @@ public class UnitOfWorkFactory<TDbContext>(IDbContextFactory<TDbContext> dbConte
         // Because our factory doesn't create the actual dbcontext, yet we are safe, and we can just inject it downwards.
         return new UnitOfWork<TDbContext>(dbContextFactory, scope);
     }
-    
+
+    public IUnitOfWork CreateWithTransaction() {
+        IUnitOfWork unitOfWork = Create();
+
+        // ReSharper disable once InvertIf
+        if (!unitOfWork.TryCreateTransaction()) {
+            logger.LogError("Failed to create transaction for new unit of work.");
+            throw new Exception("Failed to create transaction");
+        }
+        
+        return unitOfWork;
+    }
+
     public async ValueTask<IUnitOfWork> CreateWithTransactionAsync(CancellationToken ct = default) {
         IUnitOfWork unitOfWork = Create();
 
@@ -29,6 +42,17 @@ public class UnitOfWorkFactory<TDbContext>(IDbContextFactory<TDbContext> dbConte
         }
 
         return unitOfWork;
+    }
+    
+    public bool TryCreateWithTransaction([NotNullWhen(true)] out IUnitOfWork? unitOfWork) {
+        unitOfWork = Create();
+
+        // ReSharper disable once InvertIf
+        if (!unitOfWork.TryCreateTransaction()) {
+            unitOfWork = null;
+            return false;
+        }
+        return true;
     }
 
     public async ValueTask<IUnitOfWork?> TryCreateWithTransactionAsync(CancellationToken ct = default) {
