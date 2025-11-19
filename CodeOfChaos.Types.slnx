@@ -12,15 +12,12 @@
   <Folder Name="/src/">
     <Project Path="src/CodeOfChaos.Types.DataSeeder/CodeOfChaos.Types.DataSeeder.csproj" />
     <Project Path="src/CodeOfChaos.Types.TypedValueStore/CodeOfChaos.Types.TypedValueStore.csproj" />
-    <Project Path="src/CodeOfChaos.Types.UnitOfWork.Contracts/CodeOfChaos.Types.UnitOfWork.Contracts.csproj" />
-    <Project Path="src/CodeOfChaos.Types.UnitOfWork/CodeOfChaos.Types.UnitOfWork.csproj" />
     <Project Path="src/CodeOfChaos.Types/CodeOfChaos.Types.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Benchmarks.CodeOfChaos.Types.TypedValueStore/Benchmarks.CodeOfChaos.Types.TypedValueStore.csproj" />
     <Project Path="tests/Tests.CodeOfChaos.Types.DataSeeder/Tests.CodeOfChaos.Types.DataSeeder.csproj" />
     <Project Path="tests/Tests.CodeOfChaos.Types.TypedValueStore/Tests.CodeOfChaos.Types.TypedValueStore.csproj" />
-    <Project Path="tests/Tests.CodeOfChaos.Types.UnitOfWork/Tests.CodeOfChaos.Types.UnitOfWork.csproj" />
     <Project Path="tests/Tests.CodeOfChaos.Types/Tests.CodeOfChaos.Types.csproj" />
   </Folder>
 </Solution>
