@@ -22,9 +22,7 @@ public static class Program {
         string projects = string.Join(";",
             "CodeOfChaos.Types",
             "CodeOfChaos.Types.TypedValueStore",
-            "CodeOfChaos.Types.DataSeeder",
-            "CodeOfChaos.Types.UnitOfWork",
-            "CodeOfChaos.Types.UnitOfWork.Contracts"
+            "CodeOfChaos.Types.DataSeeder"
         );
 
         // Finally, start executing

@@ -35,5 +35,3 @@ jobs:
                   dotnet nuget push src/CodeOfChaos.Types/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
                   dotnet nuget push src/CodeOfChaos.Types.TypedValueStore/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
                   dotnet nuget push src/CodeOfChaos.Types.DataSeeder/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
-                  dotnet nuget push src/CodeOfChaos.Types.UnitOfWork/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
-                  dotnet nuget push src/CodeOfChaos.Types.UnitOfWork.Contracts/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
