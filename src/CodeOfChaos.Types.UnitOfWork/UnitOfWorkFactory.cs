@@ -14,7 +14,7 @@ public class UnitOfWorkFactory<TDbContext>(IDbContextFactory<TDbContext> dbConte
     public IUnitOfWork Create() {
         // Each unit of work should have their own scope which they pull their repositories from
         //      This, if the factory is used correctly, should enforce correct usage and limit dbcontext concurrency issues.
-        IServiceScope scope = provider.CreateScope();
+        AsyncServiceScope scope = provider.CreateAsyncScope();
 
         // Because our factory doesn't create the actual dbcontext, yet we are safe, and we can just inject it downwards.
         return new UnitOfWork<TDbContext>(dbContextFactory, scope);

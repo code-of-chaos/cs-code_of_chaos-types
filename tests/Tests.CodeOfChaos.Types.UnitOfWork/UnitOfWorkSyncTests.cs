@@ -20,15 +20,20 @@ public class UnitOfWorkSyncTests {
     private Mock<IDbContextFactory<MockDbContext>> _dbContextFactory = null!;
     private Mock<IDbContextTransaction> _dbTransaction = null!;
     private Mock<IServiceProvider> _serviceProvider = null!;
-    private Mock<IServiceScope> _serviceScope = null!;
+    private AsyncServiceScope _serviceScope;
 
     private UnitOfWork<MockDbContext> _unitOfWork = null!;
 
     [Before(Test)]
     public void Setup() {
         _dbContextFactory = new Mock<IDbContextFactory<MockDbContext>>();
-        _serviceScope = new Mock<IServiceScope>();
         _serviceProvider = new Mock<IServiceProvider>();
+        
+        // Create a real AsyncServiceScope from a ServiceCollection
+        var services = new ServiceCollection();
+        services.AddSingleton(_serviceProvider.Object);
+        ServiceProvider provider = services.BuildServiceProvider();
+        _serviceScope = provider.CreateAsyncScope();
 
         // Configure DbContextOptions with the InMemory provider
         DbContextOptions<MockDbContext> options = new DbContextOptionsBuilder<MockDbContext>()
@@ -63,11 +68,7 @@ public class UnitOfWorkSyncTests {
             .Setup(d => d.CreateDbContext())
             .Returns(_dbContext.Object);
 
-        _serviceScope
-            .Setup(s => s.ServiceProvider)
-            .Returns(_serviceProvider.Object);
-
-        _unitOfWork = new UnitOfWork<MockDbContext>(_dbContextFactory.Object, _serviceScope.Object);
+        _unitOfWork = new UnitOfWork<MockDbContext>(_dbContextFactory.Object, _serviceScope);
     }
 
     [After(Test)]

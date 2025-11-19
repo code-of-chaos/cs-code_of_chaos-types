@@ -15,7 +15,7 @@ public class ReadonlyUnitOfWorkFactory<TDbContext>(
 ) : IReadonlyUnitOfWorkFactory where TDbContext : DbContext, IReadonlyCapableDbContext {
 
     public IReadonlyUnitOfWork Create() {
-        IServiceScope scope = provider.CreateScope();
+        AsyncServiceScope scope = provider.CreateAsyncScope();
         return new ReadonlyUnitOfWork<TDbContext>(dbContextFactory, scope);
     }
 }

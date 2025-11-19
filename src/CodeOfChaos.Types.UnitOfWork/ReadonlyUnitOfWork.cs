@@ -11,7 +11,7 @@ namespace CodeOfChaos.Types.UnitOfWork;
 // ---------------------------------------------------------------------------------------------------------------------
 public class ReadonlyUnitOfWork<TDbContext>(
     IDbContextFactory<TDbContext> dbContextFactory,
-    IServiceScope serviceScope
+    AsyncServiceScope serviceScope
 ) : UnitOfWork<TDbContext>(dbContextFactory, serviceScope), IReadonlyUnitOfWork
     where TDbContext : DbContext, IReadonlyCapableDbContext {
     

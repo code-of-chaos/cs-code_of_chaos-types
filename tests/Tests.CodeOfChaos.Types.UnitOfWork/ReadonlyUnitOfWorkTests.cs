@@ -15,7 +15,7 @@ namespace Tests.CodeOfChaos.Types.UnitOfWork;
 public class ReadonlyUnitOfWorkTests {
     private Mock<MockDbContext> _dbContext = null!;
     private Mock<IDbContextFactory<MockDbContext>> _dbContextFactory = null!;
-    private Mock<IServiceScope> _serviceScope = null!;
+    private AsyncServiceScope _serviceScope;
     private Mock<IServiceProvider> _serviceProvider = null!;
 
     private ReadonlyUnitOfWork<MockDbContext> _readonlyUnitOfWork = null!;
@@ -23,8 +23,13 @@ public class ReadonlyUnitOfWorkTests {
     [Before(Test)]
     public void Setup() {
         _dbContextFactory = new Mock<IDbContextFactory<MockDbContext>>();
-        _serviceScope = new Mock<IServiceScope>();
         _serviceProvider = new Mock<IServiceProvider>();
+
+        // Create a real AsyncServiceScope from a ServiceCollection
+        var services = new ServiceCollection();
+        services.AddSingleton(_serviceProvider.Object);
+        ServiceProvider provider = services.BuildServiceProvider();
+        _serviceScope = provider.CreateAsyncScope();
 
         // Mock DbContextOptions with InMemory provider
         DbContextOptions<MockDbContext> options = new DbContextOptionsBuilder<MockDbContext>()
@@ -38,11 +43,7 @@ public class ReadonlyUnitOfWorkTests {
             .Setup(factory => factory.CreateDbContextAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(_dbContext.Object);
 
-        _serviceScope
-            .Setup(s => s.ServiceProvider)
-            .Returns(_serviceProvider.Object);
-
-        _readonlyUnitOfWork = new ReadonlyUnitOfWork<MockDbContext>(_dbContextFactory.Object, _serviceScope.Object);
+        _readonlyUnitOfWork = new ReadonlyUnitOfWork<MockDbContext>(_dbContextFactory.Object, _serviceScope);
     }
 
     [After(Test)]

@@ -11,7 +11,7 @@ namespace CodeOfChaos.Types.UnitOfWork;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFactory, IServiceScope serviceScope) : IUnitOfWork where TDbContext : DbContext {
+public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFactory, AsyncServiceScope serviceScope) : IUnitOfWork where TDbContext : DbContext {
     private TDbContext? _dbContext;
     private IDbContextTransaction? _transaction;
     private readonly ConcurrentDictionary<Type, IUnitOfWorkRepository> AttachedRepositories = [];
@@ -253,7 +253,7 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
                 _dbContext = null;
             }
 
-            serviceScope.Dispose();
+            await serviceScope.DisposeAsync();
         }
         finally {
             _initLockAsync.Release();
