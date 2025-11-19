@@ -41,7 +41,7 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
 
     protected virtual TDbContext GetDbContext() => _lazyDb.Value;
 
-    public bool TryCreateTransaction() {
+    public virtual bool TryCreateTransaction() {
         if (_transaction != null) return false;
         
         var dbContext = GetDbContext<TDbContext>();
@@ -75,7 +75,7 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
         }
     }
 
-    public void SaveChanges() {
+    public virtual void SaveChanges() {
         DbContext dbContext = GetDbContext<TDbContext>();
         dbContext.SaveChanges();
     }
@@ -85,7 +85,7 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
         await dbContext.SaveChangesAsync(ct);
     }
     
-    public bool TryCommitTransaction() {
+    public virtual bool TryCommitTransaction() {
         if (_transaction == null) return false;
 
         lock (_transactionLock) {
@@ -111,7 +111,7 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
         }
     }
 
-    public bool TryRollbackTransaction() {
+    public virtual bool TryRollbackTransaction() {
         if (_transaction == null) return false;
         
         _transaction.Rollback();
@@ -131,7 +131,7 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
         return true;
     }
 
-    public bool TryRollbackToSavepoint(Guid id) {
+    public virtual bool TryRollbackToSavepoint(Guid id) {
         if (_transaction == null) return false;
         if (!_transaction.SupportsSavepoints) return false;
         
@@ -148,7 +148,7 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
         return true;
     }
     
-    public bool TryCreateSavepoint(Guid id) {
+    public virtual bool TryCreateSavepoint(Guid id) {
         if (_transaction == null) return false;
         if (!_transaction.SupportsSavepoints) return false;
         
@@ -165,7 +165,7 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
         return true;
     }
     
-    public T GetDbContext<T>() where T : DbContext {
+    public virtual T GetDbContext<T>() where T : DbContext {
         if (typeof(T) != typeof(TDbContext)) throw new NotSupportedException($"DbContext type '{typeof(T)}' is not supported by this UnitOfWork.");
         
         TDbContext dbContext = GetDbContext();
@@ -181,7 +181,7 @@ public class UnitOfWork<TDbContext>(IDbContextFactory<TDbContext> dbContextFacto
         return Unsafe.As<TDbContext, T>(ref dbContext);
     }
 
-    public TRepo GetRepository<TRepo>() where TRepo : class, IUnitOfWorkRepository {
+    public virtual TRepo GetRepository<TRepo>() where TRepo : class, IUnitOfWorkRepository {
         if (AttachedRepositories.TryGetValue(typeof(TRepo), out IUnitOfWorkRepository? cachedRepo) && cachedRepo is TRepo castedCachedRepo) return castedCachedRepo;
         
         var repo = CreateAndAttachRepository<TRepo>();

@@ -23,12 +23,12 @@ public interface IUnitOfWork : IAsyncDisposable {
     bool TryRollbackTransaction();
     ValueTask<bool> TryRollbackTransactionAsync(CancellationToken ct = default);
     
+    bool TryCreateSavepoint(Guid id);
+    ValueTask<bool> TryCreateSavepointAsync(Guid id, CancellationToken ct = default);
+    
     bool TryRollbackToSavepoint(Guid id);
     ValueTask<bool> TryRollbackToSavepointAsync(Guid id, CancellationToken ct = default);
     
-    bool TryCreateSavepoint(Guid id);
-    ValueTask<bool> TryCreateSavepointAsync(Guid id, CancellationToken ct = default);
-
     TDbContext GetDbContext<TDbContext>() where TDbContext : DbContext;
     ValueTask<TDbContext> GetDbContextAsync<TDbContext>(CancellationToken ct = default) where TDbContext : DbContext;
 
