@@ -170,7 +170,7 @@ public class TypedValueStoreTest {
         await Assert.That(result).IsTrue().Because("Expected item to be updated successfully.");
         await Assert.That(resultReturn).IsTrue().Because("Expected item to be returned successfully.");
         await Assert.That(resultValue).IsEqualTo(value)
-            .And.IsNotEqualTo(originalValue);
+            .And!.IsNotEqualTo(originalValue);
     }
 
 
@@ -354,8 +354,7 @@ public class TypedValueStoreTest {
         // Assert - Verify count once
         await Assert.That(store)
             .IsNotEmpty()
-            .And.HasCount()
-            .EqualTo(numberOfItems);
+            .And.Count().IsEqualTo(numberOfItems);
 
         Console.WriteLine($"Time to add {numberOfItems} items: {addingTime} ms");
 

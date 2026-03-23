@@ -18,7 +18,7 @@ public class SeederGroupTests {
         // Assert
         await Assert.That(seederGroup.SeederTypes)
             .IsEmpty()
-            .And.HasCount().EqualTo(0);
+            .And.Count().IsEqualTo(0);
     }
 
     [Test]
@@ -31,7 +31,7 @@ public class SeederGroupTests {
 
         // Assert
         await Assert.That(seederGroup.SeederTypes)
-            .HasCount().EqualTo(1)
+            .Count().IsEqualTo(1)
             .And.Contains(typeof(TestSeeder));
     }
 
